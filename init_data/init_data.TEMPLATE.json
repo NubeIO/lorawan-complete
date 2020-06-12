@@ -1,0 +1,28 @@
+{
+    "device_profiles": [
+        {
+            "deviceProfile": {
+                "name": "profile-name",
+                "macVersion": "1.0.3",
+                "supportsJoin": true,
+                "payloadCodec": "CUSTOM_JS",
+                "payloadDecoderScript": "function Decode(fPort, bytes, variables) {return {};}"
+            }
+        }
+    ],
+
+    "devices": [
+        {
+            "device": {
+                "devEUI": "0000000000000000",
+                "name": "device-name",
+                "description": "device description",
+                "deviceProfileID": "<MATCH PROFILE NAME ABOVE AS SCRIPT WILL CHANGE THIS TO CORRECT ID>",
+                "skipFCntCheck": true
+            },
+            "deviceKeys": {
+                "appKey": "00000000000000000000000000000000"
+            }
+        }
+    ]
+}

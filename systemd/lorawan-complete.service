@@ -1,0 +1,17 @@
+# /etc/systemd/system/lorawan-complete.service
+
+[Unit]
+Description="LoRaWAN Gateway and Server"
+Requires=docker.service
+After=docker.service
+
+[Service]
+WorkingDirectory=~/
+ExecStart=/bin/bash ./start.sh
+ExecStop=/bin/bash ./stop.sh
+TimeoutStartSec=0
+Restart=unless-stopped
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
