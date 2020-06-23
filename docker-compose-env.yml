@@ -10,6 +10,11 @@ services:
       - NETWORK_SERVER__GATEWAY__BACKEND__MQTT__SERVER=tcp://mosquitto:1883
       - JOIN_SERVER__DEFAULT__SERVER=http://chirpstack-application-server:8003
       - GEOLOCATION_SERVER__SERVER=chirpstack-geolocation-server:8005
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   chirpstack-application-server:
     image: chirpstack-application-server-armv7-local
@@ -21,6 +26,11 @@ services:
       - APPLICATION_SERVER__INTEGRATION__MQTT__SERVER=tcp://mosquitto:1883
       - APPLICATION_SERVER__API__PUBLIC_HOST=chirpstack-application-server:8001
       - APPLICATION_SERVER__EXTERNAL_API__JWT_SECRET=verysecret
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   chirpstack-gateway-bridge:
     image: chirpstack-gateway-bridge-armv7-local
@@ -28,11 +38,11 @@ services:
       - 1700:1700/udp
     environment:
       - INTEGRATION__MQTT__AUTH__GENERIC__SERVERS=tcp://mosquitto:1883
-
-  chirpstack-geolocation-server:
-    image: chirpstack/chirpstack-geolocation-server:3
-    environment:
-      - GEO_SERVER__BACKEND__NAME=collos
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   postgresql:
     image: postgres:9.6-alpine
@@ -41,16 +51,33 @@ services:
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql/data
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   redis:
     image: redis:5-alpine
     volumes:
       - redisdata:/data
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   mosquitto:
     image: eclipse-mosquitto
     ports:
       - 1883:1883
+    volumes:
+      - ./configuration/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
 
 volumes:
   postgresqldata:

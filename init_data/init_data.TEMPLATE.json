@@ -11,18 +11,37 @@
         }
     ],
 
-    "devices": [
-        {
-            "device": {
-                "devEUI": "0000000000000000",
-                "name": "device-name",
-                "description": "device description",
-                "deviceProfileID": "<MATCH PROFILE NAME ABOVE AS SCRIPT WILL CHANGE THIS TO CORRECT ID>",
-                "skipFCntCheck": true
-            },
-            "deviceKeys": {
-                "appKey": "00000000000000000000000000000000"
+    "devices": {
+        "OTAA": [
+            {
+                "device": {
+                    "devEUI": "0000000000000000",
+                    "name": "device-name",
+                    "description": "device description",
+                    "deviceProfileID": "<MATCH PROFILE NAME ABOVE AS SCRIPT WILL CHANGE THIS TO CORRECT ID>",
+                    "skipFCntCheck": true
+                },
+                "deviceKeys": {
+                    "appKey": "00000000000000000000000000000000"
+                }
             }
-        }
-    ]
+        ],
+
+        "ABP": [
+            {
+                "device": {
+                    "devEUI": "0000000000000000",
+                    "name": "device-name",
+                    "description": "device description",
+                    "deviceProfileID": "<MATCH PROFILE NAME ABOVE AS SCRIPT WILL CHANGE THIS TO CORRECT ID>",
+                    "skipFCntCheck": true
+                },
+                "deviceKeys": {
+                    "devAddr": "00000000",
+                    "appKey": "00000000000000000000000000000000",
+                    "nwkKey": "00000000000000000000000000000000"
+                }
+            }
+        ]
+    }
 }

@@ -2,6 +2,7 @@
 
 set -e
 
+LOG_LEVEL=WARNING
 PKT_FWD_DIR="gateway"
 
 if [ ! -d "$PKT_FWD_DIR" ]; then
@@ -13,9 +14,9 @@ fi
 
 
 if [ -f "$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd" ]; then
-    docker-compose up -d
+    docker-compose --log-level $LOG_LEVEL up -d
     pushd $PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd
     ./lora_pkt_fwd
 else
-    docker-compose up
+    docker-compose --log-level $LOG_LEVEL up
 fi

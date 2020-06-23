@@ -2,6 +2,7 @@
 
 #### TODO
 
+- [ ] re-enable `tx_enable` in gateway config with new hardware
 - [ ] regional params options in install
 - [ ] pull only chirpstack `stable` from git to avoid another dreaded "username disaster"
 - [ ] device keys POST API `nwkKey` seems to be the `appKey` - might change in future
@@ -30,6 +31,8 @@ Only need to add `Device Profiles` and `Devices`.
     - `-h` for help
     - `-s` disable startup service
     - `-g` disable gateway install (install server only)
+    - `-r` lorawan region specification (i.e. `au915_928` (default))
+    - `-b` lorawan region band (i.e. `0` (default))
     - `-n` option to set the network interface (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
 
 ## Usage
@@ -38,15 +41,15 @@ Only need to add `Device Profiles` and `Devices`.
 
 #### Startup service enabled
 
-**Start**: `sudo service lorawan-complete start`
-**Stop**: `sudo service lorawan-complete stop`
+**Start**: `sudo service lorawan-complete start`  
+**Stop**: `sudo service lorawan-complete stop`  
   
 Startup service is listed as `lorawan-complete`
 
 #### Manually
 
-**Start**: `sudo ./start.sh`
-**Stop**: `sudo ./stop.sh`
+**Start**: `sudo ./start.sh`  
+**Stop**: `sudo ./stop.sh`  
 
 
 ### Adding Devices
@@ -94,11 +97,11 @@ This pulls the required chirpstack service repos and performs the docker build w
 Can be tweaked inside [chirpstack-docker-build.sh](build/chirpstack-docker-build.sh)
   
 from [qemu-user-static](https://github.com/multiarch/qemu-user-static#getting-started)
-- BUILD_ARCH="arm32v7"
-- BUILD_OS="debian"
+- `BUILD_ARCH="arm32v7"` | `BUILD_ARCH="arm64v7"`
+- `BUILD_OS="debian"`
   
 from [buildx](https://docs.docker.com/buildx/working-with-buildx/)
-- BUILD_PLATFORM="linux/arm/v7"
+- `BUILD_PLATFORM="linux/arm/v7"` | `BUILD_PLATFORM="linux/arm64/v7"`
   
 [install.sh](install.sh) `BUILD_ARCH=` needs to match the above `BUILD_ARCH`
 

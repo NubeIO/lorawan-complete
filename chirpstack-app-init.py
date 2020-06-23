@@ -129,49 +129,83 @@ print 'App ID: '+app_id
 
 #device data
 device_profiles={}
-with open('init_data/init_data.json') as json_file:
-    init_data = json.load(json_file)
-    
-    #device profiles
-    for d in init_data['device_profiles']:
-
-      d['deviceProfile']['networkServerID'] = ''+nw_id
-      d['deviceProfile']['organizationID'] = ''+org_id
-
-      resp = requests.post('http://127.0.0.1:8080/api/device-profiles',
-        headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
-        json=d
-      )
-      if resp.status_code < 200 or resp.status_code >= 300:
-        print "POST Device Profile Failure - StatusCode: ", resp.status_code
-        print resp.json()
-      else:
-        print "added device profile \"" + d['deviceProfile']['name'] + "\""
-        device_profiles[d['deviceProfile']['name']] = resp.json()['id']
-
-    #devices
-    for d in init_data['devices']:
-
-
-      d['device']['applicationID'] = ''+app_id
-      d['device']['deviceProfileID'] = device_profiles[d['device']['deviceProfileID']]
+try:
+  with open('init_data/init_data.json') as json_file:
+      init_data = json.load(json_file)
       
-      resp = requests.post('http://127.0.0.1:8080/api/devices',
-        headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
-        json={'device': d['device']}
-      )
-      if resp.status_code < 200 or resp.status_code >= 300:
-        print "POST Device Failure - StatusCode: ", resp.status_code
-        print resp.json()
-      else:
-        d['deviceKeys']['nwkKey'] = d['deviceKeys']['appKey']
+      #device profiles
+      for d in init_data['device_profiles']:
 
-        resp = requests.post('http://127.0.0.1:8080/api/devices/'+d['device']['devEUI']+'/keys',
+        d['deviceProfile']['networkServerID'] = ''+nw_id
+        d['deviceProfile']['organizationID'] = ''+org_id
+
+        resp = requests.post('http://127.0.0.1:8080/api/device-profiles',
           headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
-          json={'deviceKeys': d['deviceKeys']}
+          json=d
         )
         if resp.status_code < 200 or resp.status_code >= 300:
-          print "POST Device Keys Failure - StatusCode: ", resp.status_code
-          print resp.json
+          print "POST Device Profile Failure - StatusCode: ", resp.status_code
+          print resp.json()
         else:
-          print "added device \"" + d['device']['name'] + "\" - " + d['device']['devEUI']
+          print "added device profile " + d['deviceProfile']['name']
+          device_profiles[d['deviceProfile']['name']] = resp.json()['id']
+
+      #devices OTAA
+      for d in init_data['devices']['OTAA']:
+
+        d['device']['applicationID'] = ''+app_id
+        d['device']['deviceProfileID'] = device_profiles[d['device']['deviceProfileID']]
+        
+        resp = requests.post('http://127.0.0.1:8080/api/devices',
+          headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
+          json={'device': d['device']}
+        )
+        if resp.status_code < 200 or resp.status_code >= 300:
+          print "POST Device Failure - StatusCode: ", resp.status_code
+          print resp.json()
+        else:
+          d['deviceKeys']['nwkKey'] = d['deviceKeys']['appKey']
+
+          resp = requests.post('http://127.0.0.1:8080/api/devices/'+d['device']['devEUI']+'/keys',
+            headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
+            json={'deviceKeys': d['deviceKeys']}
+          )
+          if resp.status_code < 200 or resp.status_code >= 300:
+            print "POST Device Keys Failure - StatusCode: ", resp.status_code
+            print resp.json
+          else:
+            print "added device \"" + d['device']['name'] + "\" - " + d['device']['devEUI']
+
+      #devices ABP
+      for d in init_data['devices']['ABP']:
+
+        d['device']['applicationID'] = ''+app_id
+        d['device']['deviceProfileID'] = device_profiles[d['device']['deviceProfileID']]
+        
+        resp = requests.post('http://127.0.0.1:8080/api/devices',
+          headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
+          json={'device': d['device']}
+        )
+        if resp.status_code < 200 or resp.status_code >= 300:
+          print "POST Device Failure - StatusCode: ", resp.status_code
+          print resp.json()
+        else:
+          keys = {
+            "devAddr": d['deviceKeys']['devAddr'],
+            "appSKey": d['deviceKeys']['appKey'],
+            "nwkSEncKey": d['deviceKeys']['nwkKey'],
+            "sNwkSIntKey": d['deviceKeys']['nwkKey'],
+            "fNwkSIntKey": d['deviceKeys']['nwkKey']
+          }
+
+          resp = requests.post('http://127.0.0.1:8080/api/devices/'+d['device']['devEUI']+'/activate',
+            headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
+            json={'deviceActivation': keys}
+          )
+          if resp.status_code < 200 or resp.status_code >= 300:
+            print "POST Device Keys Failure - StatusCode: ", resp.status_code
+            print resp.json
+          else:
+            print "added device \"" + d['device']['name'] + "\" - " + d['device']['devEUI']
+except IOError:
+  print "No init data provided with init_data.json"

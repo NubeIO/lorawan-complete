@@ -6,7 +6,7 @@ Requires=docker.service
 After=docker.service
 
 [Service]
-WorkingDirectory=~/
+WorkingDirectory=~/<WILL_BE_EDITED>
 ExecStart=/bin/bash ./start.sh
 ExecStop=/bin/bash ./stop.sh
 TimeoutStartSec=0

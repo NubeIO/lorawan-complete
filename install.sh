@@ -5,7 +5,8 @@ set -e
 # -- User Config --
 BUILD_ARCH="arm32v7"
 LORA_MODULE="rak2247_usb"
-LORA_REGION="au_915_928"
+LORA_REGION="au915_928"
+LORA_REGION_BAND=0
 
 GATEWAY_INSTALL='true'
 STARTUP_SERVICE='true'
@@ -16,16 +17,22 @@ NIC="eth0"
 
 print_usage() {
     echo
-    echo " -n <NIC>   : Provide NIC name"
-    echo " -g         : Disable gateway install"
-    echo " -s         : Disable startup service"
+    echo " -r <region>    : Region [au915-928]"
+    echo " -b <band>      : Region Band [0,2]"
+    echo " -n <NIC>       : Provide NIC name"
+    echo " -g             : Disable gateway install"
+    echo " -s             : Disable startup service"
 }
 
-while getopts 'n:gsh' flag; do
+while getopts 'r:b:n:gsh' flag; do
     case "${flag}" in
-        g) GATEWAY_INSTALL='false' ;;
-        n) NIC="${OPTARG}" 
+        r) LORA_REGION="${OPTARG}"
+            echo "LoRaWAN Region set to $LORA_REGION" ;;
+        b) LORA_REGION_BAND="${OPTARG}"
+            echo "Region Band set to $LORA_REGION_BAND" ;;
+        n) NIC="${OPTARG}"
             echo "NIC set to $NIC" ;;
+        g) GATEWAY_INSTALL='false' ;;
         s) STARTUP_SERVICE='false' ;;
         h) print_usage
             exit 1 ;;
@@ -90,8 +97,9 @@ if [ $GATEWAY_INSTALL = 'true' ] && [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_p
             cp ../update_gwid.sh packet_forwarder/lora_pkt_fwd/
             cp ../start.sh packet_forwarder/lora_pkt_fwd/
             
-            cp global_conf/global_conf.$LORA_REGION.json packet_forwarder/lora_pkt_fwd/global_conf.json
-            sed -i "s/^.*server_address.*$/\t\"server_address\": \"127.0.0.1\",/" packet_forwarder/lora_pkt_fwd/global_conf.json
+            # cp global_conf/global_conf.$LORA_REGION.json packet_forwarder/lora_pkt_fwd/global_conf.json
+            # sed -i "s/^.*server_address.*$/\t\"server_address\": \"127.0.0.1\",/" packet_forwarder/lora_pkt_fwd/global_conf.json
+            cp ../../../../configuration/gateway/global_conf.$LORA_REGION.$LORA_REGION_BAND.json packet_forwarder/lora_pkt_fwd/global_conf.json
             # remove comment lines...
             sed -i 's,/\*.*,,g' packet_forwarder/lora_pkt_fwd/global_conf.json
         popd

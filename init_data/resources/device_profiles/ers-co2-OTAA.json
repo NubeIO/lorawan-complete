@@ -2,7 +2,7 @@
     "device_profiles": [
         {
             "deviceProfile": {
-                "name": "ERC-CO2",
+                "name": "ERC-CO2-OTAA",
                 "macVersion": "1.0.3",
                 "supportsJoin": true,
                 "payloadCodec": "CUSTOM_JS",
