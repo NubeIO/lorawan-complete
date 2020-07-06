@@ -10,6 +10,8 @@ LORA_REGION_BAND=0
 
 GATEWAY_INSTALL='true'
 STARTUP_SERVICE='true'
+STARTUP_SERVICE_SEPARATE='false'
+LOG_LEVEL=WARNING
 
 # Other
 PKT_FWD_DIR="gateway"
@@ -22,9 +24,10 @@ print_usage() {
     echo " -n <NIC>       : Provide NIC name"
     echo " -g             : Disable gateway install"
     echo " -s             : Disable startup service"
+    echo " -S             : Create separate services"
 }
 
-while getopts 'r:b:n:gsh' flag; do
+while getopts 'r:b:n:gsSh' flag; do
     case "${flag}" in
         r) LORA_REGION="${OPTARG}"
             echo "LoRaWAN Region set to $LORA_REGION" ;;
@@ -34,6 +37,7 @@ while getopts 'r:b:n:gsh' flag; do
             echo "NIC set to $NIC" ;;
         g) GATEWAY_INSTALL='false' ;;
         s) STARTUP_SERVICE='false' ;;
+        S) STARTUP_SERVICE_SEPARATE='true' ;;
         h) print_usage
             exit 1 ;;
         *) print_usage
@@ -90,6 +94,7 @@ if [ $GATEWAY_INSTALL = 'true' ] && [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_p
 
             sed -i 's,GATEWAY_EUI_NIC=.*,GATEWAY_EUI_NIC="'"$NIC"'",g' ../set_eui.sh
             sed -i 's,GATEWAY_EUI_NIC=.*,GATEWAY_EUI_NIC="'"$NIC"'",g' ../update_gwid.sh
+            sed -i 's,LOCAL_CONFIG_FILE=.*,LOCAL_CONFIG_FILE=../../../../configuration/gateway/global_conf.'"$LORA_REGION.$LORA_REGION_BAND"'.json,g' ../set_eui.sh
 
             ./install.sh
 
@@ -97,8 +102,10 @@ if [ $GATEWAY_INSTALL = 'true' ] && [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_p
             cp ../update_gwid.sh packet_forwarder/lora_pkt_fwd/
             cp ../start.sh packet_forwarder/lora_pkt_fwd/
             
+            # old config copy from rak folder
             # cp global_conf/global_conf.$LORA_REGION.json packet_forwarder/lora_pkt_fwd/global_conf.json
             # sed -i "s/^.*server_address.*$/\t\"server_address\": \"127.0.0.1\",/" packet_forwarder/lora_pkt_fwd/global_conf.json
+            # new pre configured config file
             cp ../../../../configuration/gateway/global_conf.$LORA_REGION.$LORA_REGION_BAND.json packet_forwarder/lora_pkt_fwd/global_conf.json
             # remove comment lines...
             sed -i 's,/\*.*,,g' packet_forwarder/lora_pkt_fwd/global_conf.json
@@ -122,16 +129,39 @@ echo "Done"
 
 #System service
 SERVICE_FILE=lorawan-complete
+SERVICE_FILE_SERVER=lorawan-server
+SERVICE_FILE_GATEWAY=lorawan-gateway
 if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE.service" ]; then
     echo "Enabling system startup service"
+    
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE.service
     sed -i 's,ExecStart=.*,ExecStart=/bin/bash '"$(pwd)"'/start.sh,g' systemd/$SERVICE_FILE.service
     sed -i 's,ExecStop=.*,ExecStop=/bin/bash '"$(pwd)"'/stop.sh,g' systemd/$SERVICE_FILE.service
-    # sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' up,g' systemd/$SERVICE_FILE.service
-    cp systemd/$SERVICE_FILE.service /etc/systemd/system/$SERVICE_FILE.service
-    systemctl daemon-reload
-    systemctl enable $SERVICE_FILE.service
-    service $SERVICE_FILE start
+    
+    sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE_SERVER.service
+    sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
+    sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
+    
+    sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/"',g' systemd/$SERVICE_FILE_GATEWAY.service
+    sed -i 's,ExecStart=.*,ExecStart='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd"',g' systemd/$SERVICE_FILE_GATEWAY.service
+
+
+    if [ $STARTUP_SERVICE_SEPARATE = 'false' ]; then
+        echo "creating single service $SERVICE_FILE"
+        cp systemd/$SERVICE_FILE.service /etc/systemd/system/$SERVICE_FILE.service
+        systemctl daemon-reload
+        systemctl enable $SERVICE_FILE.service
+        service $SERVICE_FILE start
+    else
+        echo "creating separate services $SERVICE_FILE_SERVER and $SERVICE_FILE_GATEWAY"
+        cp systemd/$SERVICE_FILE_SERVER.service /etc/systemd/system/$SERVICE_FILE_SERVER.service
+        cp systemd/$SERVICE_FILE_GATEWAY.service /etc/systemd/system/$SERVICE_FILE_GATEWAY.service
+        systemctl daemon-reload
+        systemctl enable $SERVICE_FILE_SERVER.service
+        systemctl enable $SERVICE_FILE_GATEWAY.service
+        service $SERVICE_FILE_SERVER start
+        service $SERVICE_FILE_GATEWAY start
+    fi
 else
     echo "No system startup service... starting docker-compose daemon"
 fi

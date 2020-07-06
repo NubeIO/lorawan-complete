@@ -30,6 +30,7 @@ Only need to add `Device Profiles` and `Devices`.
 2. `sudo ./install.sh` (this will take a few minutes to complete)
     - `-h` for help
     - `-s` disable startup service
+    - `-S` create separate startup services for server and gateway
     - `-g` disable gateway install (install server only)
     - `-r` lorawan region specification (i.e. `au915_928` (default))
     - `-b` lorawan region band (i.e. `0` (default))
@@ -41,10 +42,12 @@ Only need to add `Device Profiles` and `Devices`.
 
 #### Startup service enabled
 
-**Start**: `sudo service lorawan-complete start`  
-**Stop**: `sudo service lorawan-complete stop`  
-  
-Startup service is listed as `lorawan-complete`
+**Single service**  
+- Start: `sudo service lorawan-complete start`  
+- Stop: `sudo service lorawan-complete stop`  
+
+Startup service is listed as `lorawan-complete` or  
+`lorawan-server` and `lorawan-gateway` if separate  
 
 #### Manually
 

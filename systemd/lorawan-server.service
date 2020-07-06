@@ -1,14 +1,14 @@
-# /etc/systemd/system/lorawan-complete.service
+# /etc/systemd/system/lorawan-server.service
 
 [Unit]
-Description="LoRaWAN Gateway and Server"
+Description="LoRaWAN ChirpStack Server"
 Requires=docker.service
 After=docker.service
 
 [Service]
 WorkingDirectory=~/<WILL_BE_EDITED>
-ExecStart=/bin/bash ./start.sh
-ExecStop=/bin/bash ./stop.sh
+ExecStart=<WILL_BE_EDITED>
+ExecStop=<WILL_BE_EDITED>
 TimeoutStartSec=0
 
 [Install]
