@@ -12,6 +12,7 @@ url="redis://redis:6379"
 
 [network_server]
 net_id="000000"
+device_session_ttl="876000h0m0s"
 
 [network_server.band]
 name="AU_915_928"

@@ -2,7 +2,7 @@
     "device_profiles": [
         {
             "deviceProfile": {
-                "name": "ERS-CO2-ABP",
+                "name": "ELSYS-ABP",
                 "macVersion": "1.0.3",
                 "supportsJoin": false,
                 "rfRegion": "AU915",
