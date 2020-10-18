@@ -2,10 +2,23 @@ import sys
 import json
 import requests
 
-#get gw_eui
+#get gw_eui and band channels
 gw_eui = None
-if len(sys.argv) == 2:
+channels = None
+if len(sys.argv) == 3:
   gw_eui = sys.argv[1]
+  channel_band = sys.argv[2]
+else:
+  print 'no GW EUI and channel band provided'
+  exit(1)
+
+if channel_band == '0':
+  channels = [0, 1, 2, 3, 4, 5, 6, 7, 64]
+elif channel_band == '1':
+  channels = [8, 9, 10, 11, 12, 13, 14, 15, 65]
+else:
+  print 'Channel band not supported'
+  exit(1)
 
 ##login
 resp = requests.post('http://127.0.0.1:8080/api/internal/login',
@@ -46,9 +59,7 @@ print 'Network Server ID: '+nw_id
 resp = requests.post('http://127.0.0.1:8080/api/gateway-profiles',
   headers={'Grpc-Metadata-Authorization': 'Bearer '+jwt},
   json={"gatewayProfile": {
-    "channels": [
-      0, 1, 2, 3, 4, 5, 6, 7, 64
-    ],
+    "channels": channels,
     "name": "local-gateway-profile",
     "networkServerID": ""+nw_id
   }}

@@ -1,7 +1,7 @@
 # See https://www.chirpstack.io/network-server/install/config/ for a full
 # configuration example and documentation.
 #
-# This file is for the US915 band (channels 0-7). See the examples/ folder for more
+# This file is for the AU915 band. See the examples/ folder for more
 # configuration examples.
 
 [postgresql]
@@ -12,6 +12,7 @@ url="redis://redis:6379"
 
 [network_server]
 net_id="000000"
+device_session_ttl="876000h0m0s"
 
 [network_server.band]
 name="AU_915_928"
@@ -25,5 +26,5 @@ server="tcp://mosquitto:1883"
 [join_server.default]
 server="http://chirpstack-application-server:8003"
 
-[geolocation_server]
-server="chirpstack-geolocation-server:8005"
+#[geolocation_server]
+#server="chirpstack-geolocation-server:8005"

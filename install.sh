@@ -5,12 +5,11 @@ set -e
 # -- User Config --
 BUILD_ARCH="arm32v7"
 LORA_MODULE="rak2247_usb"
-LORA_REGION="au915_928"
+LORA_REGION="au915"
 LORA_REGION_BAND=0
 
 GATEWAY_INSTALL='true'
 STARTUP_SERVICE='true'
-STARTUP_SERVICE_SEPARATE='false'
 LOG_LEVEL=WARNING
 
 # Other
@@ -19,12 +18,11 @@ NIC="eth0"
 
 print_usage() {
     echo
-    echo " -r <region>    : Region [au915-928]"
-    echo " -b <band>      : Region Band [0,2]"
+    echo " -r <region>    : Region [au915, us902]"
+    echo " -b <band>      : Region Band [0,1]"
     echo " -n <NIC>       : Provide NIC name"
     echo " -g             : Disable gateway install"
     echo " -s             : Disable startup service"
-    echo " -S             : Create separate services"
 }
 
 while getopts 'r:b:n:gsSh' flag; do
@@ -37,7 +35,6 @@ while getopts 'r:b:n:gsSh' flag; do
             echo "NIC set to $NIC" ;;
         g) GATEWAY_INSTALL='false' ;;
         s) STARTUP_SERVICE='false' ;;
-        S) STARTUP_SERVICE_SEPARATE='true' ;;
         h) print_usage
             exit 1 ;;
         *) print_usage
@@ -127,17 +124,16 @@ docker load -i build/chirpstack-application-server-$BUILD_ARCH-local.tar
 docker load -i build/chirpstack-gateway-bridge-$BUILD_ARCH-local.tar
 echo "Done"
 
+#Chirpstack Network Server Config
+echo "Setting Chirpstack Network Server config to $LORA_REGION band $LORA_REGION_BAND"
+cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+
 #System service
-SERVICE_FILE=lorawan-complete
 SERVICE_FILE_SERVER=lorawan-server
 SERVICE_FILE_GATEWAY=lorawan-gateway
-if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE.service" ]; then
+if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" ] && [ -f "systemd/$SERVICE_FILE_GATEWAY.service" ]; then
     echo "Enabling system startup service"
-    
-    sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE.service
-    sed -i 's,ExecStart=.*,ExecStart=/bin/bash '"$(pwd)"'/start.sh,g' systemd/$SERVICE_FILE.service
-    sed -i 's,ExecStop=.*,ExecStop=/bin/bash '"$(pwd)"'/stop.sh,g' systemd/$SERVICE_FILE.service
-    
+        
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE_SERVER.service
     sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
     sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
@@ -145,23 +141,14 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE.service" ]; then
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/"',g' systemd/$SERVICE_FILE_GATEWAY.service
     sed -i 's,ExecStart=.*,ExecStart='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd"',g' systemd/$SERVICE_FILE_GATEWAY.service
 
-
-    if [ $STARTUP_SERVICE_SEPARATE = 'false' ]; then
-        echo "creating single service $SERVICE_FILE"
-        cp systemd/$SERVICE_FILE.service /etc/systemd/system/$SERVICE_FILE.service
-        systemctl daemon-reload
-        systemctl enable $SERVICE_FILE.service
-        service $SERVICE_FILE start
-    else
-        echo "creating separate services $SERVICE_FILE_SERVER and $SERVICE_FILE_GATEWAY"
-        cp systemd/$SERVICE_FILE_SERVER.service /etc/systemd/system/$SERVICE_FILE_SERVER.service
-        cp systemd/$SERVICE_FILE_GATEWAY.service /etc/systemd/system/$SERVICE_FILE_GATEWAY.service
-        systemctl daemon-reload
-        systemctl enable $SERVICE_FILE_SERVER.service
-        systemctl enable $SERVICE_FILE_GATEWAY.service
-        service $SERVICE_FILE_SERVER start
-        service $SERVICE_FILE_GATEWAY start
-    fi
+    echo "creating services $SERVICE_FILE_SERVER and $SERVICE_FILE_GATEWAY"
+    cp systemd/$SERVICE_FILE_SERVER.service /etc/systemd/system/$SERVICE_FILE_SERVER.service
+    cp systemd/$SERVICE_FILE_GATEWAY.service /etc/systemd/system/$SERVICE_FILE_GATEWAY.service
+    systemctl daemon-reload
+    systemctl enable $SERVICE_FILE_SERVER.service
+    systemctl enable $SERVICE_FILE_GATEWAY.service
+    service $SERVICE_FILE_SERVER start
+    service $SERVICE_FILE_GATEWAY start
 else
     echo "No system startup service... starting docker-compose daemon"
 fi
@@ -187,6 +174,6 @@ if [ $GATEWAY_INSTALL = 'true' ]; then
     GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/packet_forwarder/lora_pkt_fwd/global_conf.json)
     echo "Gateway EUI: $GW_EUI"
 fi
-python chirpstack-app-init.py $GW_EUI
+python chirpstack-app-init.py $GW_EUI $LORA_REGION_BAND
 echo
 echo "Finished"

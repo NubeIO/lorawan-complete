@@ -2,8 +2,8 @@
 
 #### TODO
 
+- [ ] build rak gateway into docker image
 - [ ] re-enable `tx_enable` in gateway config with new hardware
-- [ ] regional params options in install
 - [ ] pull only chirpstack `stable` from git to avoid another dreaded "username disaster"
 - [ ] device keys POST API `nwkKey` seems to be the `appKey` - might change in future
 
@@ -30,9 +30,8 @@ Only need to add `Device Profiles` and `Devices`.
 2. `sudo ./install.sh` (this will take a few minutes to complete)
     - `-h` for help
     - `-s` disable startup service
-    - `-S` create separate startup services for server and gateway
     - `-g` disable gateway install (install server only)
-    - `-r` lorawan region specification (i.e. `au915_928` (default))
+    - `-r` lorawan region specification (i.e. `au915` (default))
     - `-b` lorawan region band (i.e. `0` (default))
     - `-n` option to set the network interface (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
 
@@ -42,12 +41,12 @@ Only need to add `Device Profiles` and `Devices`.
 
 #### Startup service enabled
 
-**Single service**  
-- Start: `sudo service lorawan-complete start`  
-- Stop: `sudo service lorawan-complete stop`  
-
-Startup service is listed as `lorawan-complete` or  
-`lorawan-server` and `lorawan-gateway` if separate  
+**Server service**  
+- Start: `sudo service lorawan-server start`  
+- Stop: `sudo service lorawan-server stop`  
+**Gateway service**  
+- Start: `sudo service lorawan-gateway start`  
+- Stop: `sudo service lorawan-gateway stop`  
 
 #### Manually
 
@@ -77,7 +76,7 @@ Via the Web UI
 
 `sudo ./uninstall.sh` (can be ran while it's running too)
 
-## Building
+## Building (Only required for chirpstack updates and not installing on devices)
 
 Since [Chirpstack-Docker](https://github.com/brocaar/chirpstack-docker) currently doesn't support arm, the docker images must be built manually.  
 This must be done on a seperate system as the build process is too large for an RPi.  
@@ -117,7 +116,7 @@ from [buildx](https://docs.docker.com/buildx/working-with-buildx/)
     * https://www.chirpstack.io/network-server/install/config/
     * https://www.chirpstack.io/application-server/install/config/
 * `configuration/postgresql/initdb/`: directory containing PostgreSQL initialization scripts
-* `systemd/lorawan-complete.service`: systemd service file for startup (gets edited by install script to change absolute paths)
+* `systemd/`: systemd service files for startup (gets edited by install script to change absolute paths)
 * `docker-compose.yml`: the docker-compose file containing the services (edited to utilise local chirpstack images)
 * `docker-compose-env.yml`: alternate docker-compose file using environment variables, can be run with the docker-compose `-f` flag (edited to utilise local chirpstack images)
 * `install.sh`: install script for target (RPi). Installs all dependencies too

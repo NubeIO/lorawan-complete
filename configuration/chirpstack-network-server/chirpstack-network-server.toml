@@ -1,7 +1,7 @@
 # See https://www.chirpstack.io/network-server/install/config/ for a full
 # configuration example and documentation.
 #
-# This file is for the AU915 band (channels 0-7). See the examples/ folder for more
+# This file is for the AU915 band. See the examples/ folder for more
 # configuration examples.
 
 [postgresql]
