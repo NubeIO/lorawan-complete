@@ -10,7 +10,7 @@
 			"type": "SX1257",
 			"freq": 904300000,
 			"rssi_offset": -159.0,
-			"tx_enable": true,
+			"tx_enable": false,
 			"tx_freq_min": 902000000,
 			"tx_freq_max": 928000000
 		},
