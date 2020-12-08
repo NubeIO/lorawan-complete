@@ -145,7 +145,6 @@ try:
     path = 'init_data/resources/device_profiles'
     _, _, filenames = next(walk(path), (None, None, []))
     for file in filenames:
-        print('OPENING', join(path, file))
         try:
             with open(join(path, file)) as json_file:
                 d = json.load(json_file)
@@ -162,7 +161,7 @@ try:
                           resp.status_code)
                     print(resp.json())
                 else:
-                    print("added device profile " + d['deviceProfile']['name'])
+                    print("Added device profile " + d['deviceProfile']['name'])
                     device_profiles[d['deviceProfile']['name']] = resp.json()[
                         'id']
         except:

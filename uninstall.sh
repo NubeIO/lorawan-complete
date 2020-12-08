@@ -38,6 +38,8 @@ docker-compose down -v
 
 docker ps -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1 }' | xargs -I {} docker stop {}
 docker ps -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1 }' | xargs -I {} docker rm {}
+docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker stop {}
+docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker rm {}
 echo "Done"
 echo "Removing Chirpstack Docker images..."
 docker images -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}

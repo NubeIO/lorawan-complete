@@ -10,6 +10,7 @@ LORA_REGION_BAND=0
 
 GATEWAY_INSTALL='true'
 STARTUP_SERVICE='true'
+ENABLE_MOSQUITTO='true'
 LOG_LEVEL=WARNING
 
 # Other
@@ -23,9 +24,10 @@ print_usage() {
     echo " -n <NIC>       : Provide NIC name"
     echo " -g             : Disable gateway install"
     echo " -s             : Disable startup service"
+    echo " -m             : Disable Mosquitto"
 }
 
-while getopts 'r:b:n:gsSh' flag; do
+while getopts 'r:b:n:gsmh' flag; do
     case "${flag}" in
         r) LORA_REGION="${OPTARG}"
             echo "LoRaWAN Region set to $LORA_REGION" ;;
@@ -35,6 +37,7 @@ while getopts 'r:b:n:gsSh' flag; do
             echo "NIC set to $NIC" ;;
         g) GATEWAY_INSTALL='false' ;;
         s) STARTUP_SERVICE='false' ;;
+        m) ENABLE_MOSQUITTO='false' ;;
         h) print_usage
             exit 1 ;;
         *) print_usage
@@ -65,6 +68,9 @@ if ! hash docker > /dev/null; then
     rm get-docker.sh
     # Add user to docker group for priviliges
     usermod -aG docker $USER
+    set +e
+    usermod -aG docker $(who am i | awk '{print $1}')
+    set -e
 fi
 # Install requirements
 apt install -y docker-compose git python-pip python3-pip jq
@@ -133,11 +139,15 @@ SERVICE_FILE_SERVER=lorawan-server
 SERVICE_FILE_GATEWAY=lorawan-gateway
 if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" ] && [ -f "systemd/$SERVICE_FILE_GATEWAY.service" ]; then
     echo "Enabling system startup service"
-        
-    sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE_SERVER.service
-    sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
-    sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
     
+    sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE_SERVER.service
+    if [ $ENABLE_MOSQUITTO = 'true' ]; then
+        sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' -f docker-compose.yml -f docker-compose-mosquitto.yml --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
+        sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' -f docker-compose.yml -f docker-compose-mosquitto.yml --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
+    else
+        sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
+        sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
+    fi
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/"',g' systemd/$SERVICE_FILE_GATEWAY.service
     sed -i 's,ExecStart=.*,ExecStart='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd"',g' systemd/$SERVICE_FILE_GATEWAY.service
 

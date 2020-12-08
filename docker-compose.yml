@@ -60,20 +60,6 @@ services:
         max-size: "200k"
         max-file: "2"
 
-
-  mosquitto:
-    image: eclipse-mosquitto
-    ports:
-      - 1883:1883
-    volumes:
-      - ./configuration/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-    logging:
-      # driver: local
-      options:
-        max-size: "200k"
-        max-file: "2"
-
-
 volumes:
   postgresqldata:
   redisdata:

@@ -31,6 +31,7 @@ Only need to add `Device Profiles` and `Devices`.
 ```
 - (this will take a few minutes to complete)
     - `-h` for help
+    - `-m` disable mosquitto broker
     - `-s` disable startup service
     - `-g` disable gateway install (install server only)
     - `-r` lorawan region specification (i.e. `au915` (default))
