@@ -26,29 +26,47 @@ Only need to add `Device Profiles` and `Devices`.
 
 **Assumes Chirpstack Docker images have been built for target architecture and tars reside in build/**  
   
-1. Clone/Copy repo onto target system (RPi)
-2. `sudo ./install.sh` (this will take a few minutes to complete)
+```
+    sudo ./install.sh
+```
+- (this will take a few minutes to complete)
     - `-h` for help
     - `-s` disable startup service
     - `-g` disable gateway install (install server only)
     - `-r` lorawan region specification (i.e. `au915` (default))
     - `-b` lorawan region band (i.e. `0` (default))
-    - `-n` option to set the network interface (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
+    - `-n` option to set the network interface (`eth0`(default)) (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
+
+### Uninstalling
+
+(can be ran while it's running)  
+```
+sudo ./uninstall.sh
+``` 
+
+### CLEANUP **IMPORTANT**
+
+If installing on production site please run the following **AFTER SUCCESSFUL AND TESTED INSTALL!**  
+```
+sudo rm -r build .git
+``` 
+
 
 ## Usage
 
 ### Stopping / Starting
 
-#### Startup service enabled
+#### System services enabled:
 
 **Server service**  
 - Start: `sudo service lorawan-server start`  
 - Stop: `sudo service lorawan-server stop`  
+
 **Gateway service**  
 - Start: `sudo service lorawan-gateway start`  
 - Stop: `sudo service lorawan-gateway stop`  
 
-#### Manually
+#### System services NOT enabled:
 
 **Start**: `sudo ./start.sh`  
 **Stop**: `sudo ./stop.sh`  
@@ -56,25 +74,20 @@ Only need to add `Device Profiles` and `Devices`.
 
 ### Adding Devices
 
-#### Pre-Installation
-
-Can be added with JSON data.  
-More options can be found at http://&lt;target_ip&gt;:8080/api/
-1. Copy [init_data/init_data.TEMPLATE.json](init_data/init_data.TEMPLATE.json) to `init_data/init_data.json`
-2. Fill out as needed
-  
-[init_data/resouces](init_data/resouces) contains reusable data such as Device Profiles to populate your `init_data.json`
-
-#### Manually
+#### Manually:
 
 Via the Web UI
 1. http://&lt;target_ip&gt;:8080/ and login
 2. Create `Device Profile` to match your LoRaWAN device settings
 3. Create `Device` in `Applications`->`default-app` (pre created)
 
-### Uninstalling
-
-`sudo ./uninstall.sh` (can be ran while it's running too)
+### Adding Device Profiles after install
+Install will already have handled existing ones but in case of new profiles:
+```
+python chirpstack-app-device-profiles.py
+```  
+Will add all profiles located under [init_data/resources/device_profiles](init_data/resources/device_profiles).  
+file names can also be provided specifically (i.e. `python chirpstack-app-device-profiles.py elsys-ABP.json`)
 
 ## Building (Only required for chirpstack updates and not installing on devices)
 
@@ -125,5 +138,6 @@ from [buildx](https://docs.docker.com/buildx/working-with-buildx/)
 * `stop.sh`: stops gateway and server. Used by startup service
 * `chirpstack-app-init.py`: initialises Chirpstack application data. Takes 1 argument to set the gateway EUI
 * `chirpstack-app-wipe.py`: wipes all Chirpstack application data (including devices)
-* `init_data/init_data.TEMPLATE.json`: example json file to add devices at install time. (copy to init_data.json and edit to use)
+* `chirpstack-app-device-profiles.py`: adds device profiles located in init data directory. filenames can be provided for specifics or none to add all
+* `init_data/init_data.TEMPLATE.json`: example json file to add devices at install time. (copy to init_data.json and edit to use) (Not used anymore. Potentially removing completely)
 * `init_data/resources/`: folders and files containing reusable init data
