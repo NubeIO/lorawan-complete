@@ -25,9 +25,15 @@ Only need to add `Device Profiles` and `Devices`.
 ## Installation
 
 **Assumes Chirpstack Docker images have been built for target architecture and tars reside in build/**  
-  
+
+**INTSALL WITHOUT MQTT BROKER IN DOCKER**  
 ```
-    sudo ./install.sh
+sudo ./install.sh -m
+```
+
+**INTSALL WITH MQTT BROKER IN DOCKER**  
+```
+sudo ./install.sh
 ```
 - (this will take a few minutes to complete)
     - `-h` for help
