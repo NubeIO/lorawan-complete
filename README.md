@@ -26,23 +26,22 @@ Only need to add `Device Profiles` and `Devices`.
 
 **Assumes Chirpstack Docker images have been built for target architecture and tars reside in build/**  
 
-**INTSALL WITHOUT MQTT BROKER IN DOCKER**  
-```
-sudo ./install.sh -m
-```
-
-**INTSALL WITH MQTT BROKER IN DOCKER**  
 ```
 sudo ./install.sh
 ```
 - (this will take a few minutes to complete)
     - `-h` for help
-    - `-m` disable mosquitto broker
+    - `-m` disable mosquitto broker in docker
     - `-s` disable startup service
     - `-g` disable gateway install (install server only)
     - `-r` lorawan region specification (i.e. `au915` (default))
     - `-b` lorawan region band (i.e. `0` (default))
     - `-n` option to set the network interface (`eth0`(default)) (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
+
+**INTSALL WITHOUT MQTT BROKER IN DOCKER**  
+```
+sudo ./install.sh -m
+```
 
 ### Uninstalling
 

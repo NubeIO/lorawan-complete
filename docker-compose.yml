@@ -10,6 +10,8 @@ services:
       options:
         max-size: "200k"
         max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
 
   chirpstack-application-server:
     image: chirpstack-application-server-arm32v7-local
@@ -22,6 +24,8 @@ services:
       options:
         max-size: "200k"
         max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
 
   chirpstack-gateway-bridge:
     image: chirpstack-gateway-bridge-arm32v7-local
@@ -34,12 +38,16 @@ services:
       options:
         max-size: "200k"
         max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
 
 
   postgresql:
     image: postgres:9.6-alpine
     environment:
       - POSTGRES_PASSWORD=root
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql/data
