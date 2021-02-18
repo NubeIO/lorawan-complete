@@ -12,10 +12,10 @@ docker stop $(sudo docker ps -aq)
 docker rm $(sudo docker ps -aq)
 docker rmi $(sudo docker images -aq)
 
-apt-get purge docker-ce docker-ce-cli containerd.io
+apt-get purge -y docker-ce docker-ce-cli containerd.io
 
 rm -rf /var/lib/docker
 rm -rf /var/lib/containerd
 
 echo ""
-echo "Done
+echo "Done"
