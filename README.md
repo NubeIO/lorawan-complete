@@ -1,63 +1,49 @@
-# LoRaWAN Server + Gateway for RPi
+# LoRaWAN Server + Gateway install scripts
 
 #### TODO
 
-- [ ] build rak gateway into docker image
-- [ ] re-enable `tx_enable` in gateway config with new hardware
-- [ ] pull only chirpstack `stable` from git to avoid another dreaded "username disaster"
-- [ ] device keys POST API `nwkKey` seems to be the `appKey` - might change in future
+- build gateways into docker images?
 
-### Solution
+### About
 
 - **Chirpstack LoRaWAN Server (Dockerised)**
-- **Rak Gateway (Optional)**
+- **LoRaWAN Gateway (Optional)**
 
-Cleaner, simpler dockerised (server for now) version of a complete gateway and server solution in comparison to using Rak's default gateway + server package [rak_common_for_gateway](https://github.com/RAKWireless/rak_common_for_gateway).  
-  
-Server is a clone of [Chirpstack-Docker](https://github.com/brocaar/chirpstack-docker) which currently does not support arm so is tweaked to be built for different architectures (default armv7) (idea taken from https://github.com/brocaar/chirpstack-docker/issues/19).  
-Docker images must be built on a seperate system before installing on the RPi.  
-  
-Gateway is Rak software from [rak_common_for_gateway](https://github.com/RAKWireless/rak_common_for_gateway) (default to Rak2247 USB) which utilises [LoRa Gateway](https://github.com/Lora-net/lora_gateway) + [Lora Packet Forwarder](https://github.com/Lora-net/packet_forwarder.git) to form the complete gateway.  
-  
-Includes startup setup and automatic chirpstack server configuration.  
-Only need to add `Device Profiles` and `Devices`.  
+Automated LoRaWAN Server and Gateway installation.  
+Dockerised server [Chirpstack-Docker](https://github.com/brocaar/chirpstack-docker)  
+Server and Gateway can be installed separately
 
+#### Gateways:
+- Rak gateway [rak_common_for_gateway](https://github.com/RAKWireless/rak_common_for_gateway).  
+- PicoCell gateway [Lora-net](https://github.com/Lora-net/picoGW_packet_forwarder)
+  
 ## Installation
 
-**Assumes Chirpstack Docker images have been built for target architecture and tars reside in build/**  
+**Note:** if installting both gateway and server it is recommended to install gateway first as it will
+be automatically added to the server afterwards.
+### Gateway
+```
+sudo bash install-gateway.sh
+```
+- `-h` for help
 
+### Server
 ```
-sudo ./install.sh
+sudo bash install-server.sh
 ```
-- (this will take a few minutes to complete)
-    - `-h` for help
-    - `-m` disable mosquitto broker in docker
-    - `-s` disable startup service
-    - `-g` disable gateway install (install server only)
-    - `-r` lorawan region specification (i.e. `au915` (default))
-    - `-b` lorawan region band (i.e. `0` (default))
-    - `-n` option to set the network interface (`eth0`(default)) (used for gateway EUI generation) (i.e. `sudo ./install.sh -n wlan0`)
-
-**INTSALL WITHOUT MQTT BROKER IN DOCKER**  
-```
-sudo ./install.sh -m
-```
+(this will take a few minutes to complete)
+- `-h` for help
 
 ### Uninstalling
 
 (can be ran while it's running)  
 ```
-sudo ./uninstall.sh
+sudo bash uninstall-gateway.sh
 ``` 
-
-### CLEANUP **IMPORTANT**
-
-If installing on production site please run the following **AFTER SUCCESSFUL AND TESTED INSTALL!**  
+or
 ```
-sudo rm -r build .git
+sudo bash uninstall-server.sh
 ``` 
-
-
 ## Usage
 
 ### Stopping / Starting
@@ -77,25 +63,10 @@ sudo rm -r build .git
 **Start**: `sudo ./start.sh`  
 **Stop**: `sudo ./stop.sh`  
 
+---
+## (LEGACY) Building (Only required for chirpstack updates and not installing on devices)
 
-### Adding Devices
-
-#### Manually:
-
-Via the Web UI
-1. http://&lt;target_ip&gt;:8080/ and login
-2. Create `Device Profile` to match your LoRaWAN device settings
-3. Create `Device` in `Applications`->`default-app` (pre created)
-
-### Adding Device Profiles after install
-Install will already have handled existing ones but in case of new profiles:
-```
-python chirpstack-app-device-profiles.py
-```  
-Will add all profiles located under [init_data/resources/device_profiles](init_data/resources/device_profiles).  
-file names can also be provided specifically (i.e. `python chirpstack-app-device-profiles.py elsys-ABP.json`)
-
-## Building (Only required for chirpstack updates and not installing on devices)
+**THIS WAS RELEVENT BEFORE CHIRPSTACK PROVIDED DOCKER IMAGES FOR ARM**  
 
 Since [Chirpstack-Docker](https://github.com/brocaar/chirpstack-docker) currently doesn't support arm, the docker images must be built manually.  
 This must be done on a seperate system as the build process is too large for an RPi.  
@@ -128,6 +99,8 @@ from [buildx](https://docs.docker.com/buildx/working-with-buildx/)
 
 
 ## Info on Repo
+
+**TODO:** slightly out of date.
 
 * `build/`: folder to build and contain docker images
 * `configuration/chirpstack*`: directory containing the ChirpStack configuration files, see:

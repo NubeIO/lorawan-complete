@@ -6,22 +6,20 @@ from os.path import join
 
 # get gw_eui and band channels
 gw_eui = None
+gw_region = None
+gw_band = None
 channels = None
-if len(sys.argv) == 3:
+if len(sys.argv) > 4:
+    print("Too many arguments")
+    exit(1)
+if len(sys.argv) > 1 and len(sys.argv) < 4:
+    print("Too few arguments for gateway")
+    exit(1)
+if len(sys.argv) == 4:
     gw_eui = sys.argv[1]
-    channel_band = sys.argv[2]
-else:
-    print('no GW EUI and channel band provided')
-    exit(1)
+    gw_region = sys.argv[2]
+    gw_band = sys.argv[3]
 
-if channel_band == '0':
-#     channels = [0, 1, 2, 3, 4, 5, 6, 7, 64]
-elif channel_band == '1':
-#     channels = [8, 9, 10, 11, 12, 13, 14, 15, 65]
-else:
-    print('Channel band not supported')
-    exit(1)
-channels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 64, 65]
 
 # login
 resp = requests.post('http://127.0.0.1:8080/api/internal/login',
@@ -58,21 +56,42 @@ if resp.status_code < 200 or resp.status_code >= 300:
 nw_id = resp.json()['id']
 print('Network Server ID: ' + nw_id)
 
+
 # gateway profile
-resp = requests.post('http://127.0.0.1:8080/api/gateway-profiles',
-                     headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
-                     json={"gatewayProfile": {
-                         "channels": channels,
-                         "name": "local-gateway-profile",
-                         "networkServerID": ""+nw_id
-                     }}
-                     )
-gwp_id = None
-if resp.status_code < 200 or resp.status_code >= 300:
-    print("POST Gateway Profile Failure - StatusCode: ", resp.status_code)
-else:
-    gwp_id = resp.json()['id']
-    print('Gateway Profile ID: ' + gwp_id)
+gateway_profiles = {}
+try:
+    path = 'init-data/gateway-profiles'
+    _, _, filenames = next(walk(path), (None, None, []))
+    for file in filenames:
+        f_split = file.split('.')
+        if len(f_split) != 3:
+            print("Gateway profile file with invalid name: " + file)
+        try:
+            with open(join(path, file)) as json_file:
+                d = json.load(json_file)
+                d['gatewayProfile']['networkServerID'] = '' + nw_id
+
+                resp = requests.post('http://127.0.0.1:8080/api/gateway-profiles',
+                                     headers={
+                                         'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                                     json=d
+                                     )
+                if resp.status_code < 200 or resp.status_code >= 300:
+                    print("POST Gateway Profile Failure - StatusCode: ",
+                          resp.status_code)
+                    print(resp.json())
+                else:
+                    print("Added gateway profile " + d['gatewayProfile']['name'])
+                    gateway_profiles[d['gatewayProfile']['name']] = resp.json()[
+                        'id']
+                    if gw_region == f_split[0] and gw_band == f_split[1]:
+                        gwp_id = resp.json()['id']
+
+        except:
+            print('Error adding gateway profile', file)
+
+except IOError:
+    print("No gateway profiles to add")
 
 
 # service profile
@@ -96,15 +115,15 @@ print('Service Profile ID: ' + sp_id)
 
 
 # gateway
-if gwp_id != None and gw_eui != None:
+if gateway_profiles and gw_eui != None and gwp_id != None:
     resp = requests.post('http://127.0.0.1:8080/api/gateways',
                          headers={
                              'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
                          json={"gateway": {
-                             "description": "rak2247 USB PCIe w/ rak packet forwarder",
+                             "description": "default gateway",
                              "discoveryEnabled": False,
                              "gatewayProfileID": ""+gwp_id,
-                             "name": "local-rak-gateway",
+                             "name": "default-gateway",
                              "id": gw_eui,
                              "networkServerID": ""+nw_id,
                              "organizationID": ""+org_id,
@@ -143,7 +162,7 @@ print('App ID: ' + app_id)
 # device data
 device_profiles = {}
 try:
-    path = 'init_data/resources/device_profiles'
+    path = 'init-data/device-profiles'
     _, _, filenames = next(walk(path), (None, None, []))
     for file in filenames:
         try:

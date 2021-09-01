@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+  chirpstack-network-server:
+    image: chirpstack-network-server-arm32v7-local
+    volumes:
+      - ./configuration/chirpstack-network-server:/etc/chirpstack-network-server
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
+
+  chirpstack-application-server:
+    image: chirpstack-application-server-arm32v7-local
+    ports:
+      - 8080:8080
+    volumes:
+      - ./configuration/chirpstack-application-server:/etc/chirpstack-application-server
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
+
+  chirpstack-gateway-bridge:
+    image: chirpstack-gateway-bridge-arm32v7-local
+    ports:
+      - 1700:1700/udp
+    volumes:
+      - ./configuration/chirpstack-gateway-bridge:/etc/chirpstack-gateway-bridge
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
+
+
+  postgresql:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_PASSWORD=root
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
+      - postgresqldata:/var/lib/postgresql/data
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
+
+
+  redis:
+    image: redis:5-alpine
+    volumes:
+      - redisdata:/data
+    logging:
+      # driver: local
+      options:
+        max-size: "200k"
+        max-file: "2"
+
+volumes:
+  postgresqldata:
+  redisdata:
