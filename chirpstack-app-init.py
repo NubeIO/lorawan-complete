@@ -1,25 +1,31 @@
 import sys
+import argparse
 import json
 import requests
 from os import walk
 from os.path import join
 
-# get gw_eui and band channels
-gw_eui = None
-gw_region = None
-gw_band = None
-channels = None
-if len(sys.argv) > 4:
-    print("Too many arguments")
-    exit(1)
-if len(sys.argv) > 1 and len(sys.argv) < 4:
-    print("Too few arguments for gateway")
-    exit(1)
-if len(sys.argv) == 4:
-    gw_eui = sys.argv[1]
-    gw_region = sys.argv[2]
-    gw_band = sys.argv[3]
+parser = argparse.ArgumentParser()
+parser.add_argument('-g', metavar='eui', type=str,
+                    help='Gateway EUI')
+parser.add_argument('-r', metavar='region', type=str,
+                    help='Gateway region (i.e. au915)')
+parser.add_argument('-b', metavar='band', type=int,
+                    help='Gateway band (i.e. 0)')
+parser.add_argument('-p', metavar='password', type=str,
+                    help='Server password')
 
+args = parser.parse_args()
+
+gw_eui = args.g
+gw_region = args.r
+gw_band = args.b
+password = args.p
+
+if gw_eui is not None or gw_region is not None or gw_band is not None:
+    if gw_eui is None or gw_region is None or gw_band is None:
+        print("Error: Missing gateway arguments!")
+        exit(1)
 
 # login
 resp = requests.post('http://127.0.0.1:8080/api/internal/login',
@@ -59,6 +65,7 @@ print('Network Server ID: ' + nw_id)
 
 # gateway profile
 gateway_profiles = {}
+gwp_id = None
 try:
     path = 'init-data/gateway-profiles'
     _, _, filenames = next(walk(path), (None, None, []))
@@ -81,10 +88,11 @@ try:
                           resp.status_code)
                     print(resp.json())
                 else:
-                    print("Added gateway profile " + d['gatewayProfile']['name'])
+                    print("Added gateway profile " +
+                          d['gatewayProfile']['name'])
                     gateway_profiles[d['gatewayProfile']['name']] = resp.json()[
                         'id']
-                    if gw_region == f_split[0] and gw_band == f_split[1]:
+                    if gw_region == f_split[0] and str(gw_band) == f_split[1]:
                         gwp_id = resp.json()['id']
 
         except:
@@ -189,3 +197,19 @@ try:
 
 except IOError:
     print("No init data provided with init_data.json")
+
+# user password
+if password is not None:
+    resp = requests.put('http://127.0.0.1:8080/api/users/1/password',
+                        headers={
+                            'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                        json={
+                            "password": password
+                        }
+                        )
+    if resp.status_code < 200 or resp.status_code >= 300:
+        print("PUT Password Failure - StatusCode: ", resp.status_code)
+        exit(1)
+    print('User password updated')
+
+print('Data initialisation done')

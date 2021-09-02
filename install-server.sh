@@ -7,8 +7,15 @@ BUILD_ARCH="arm32v7"
 
 LORA_REGION="au915"
 LORA_REGION_BAND=0
+
+SERVER_PASSWORD="NA"
+
+MQTT_USER=""
+MQTT_PASS=""
+
 STARTUP_SERVICE='true'
 ENABLE_MOSQUITTO='false'
+
 LOG_LEVEL=WARNING
 
 
@@ -16,16 +23,25 @@ print_usage() {
     echo
     echo " -r <region>    : Region [au915, us902, eu868]. Default au915"
     echo " -b <band>      : Region Band [0,1].            Default 0"
+    echo " -p <password>  : Server password"
+    echo " -U <username>  : MQTT broker username"
+    echo " -P <password>  : MQTT broker password"
     echo " -s             : Disable startup service"
-    echo " -m             : Enable Mosquitto"
+    echo " -m             : Enable Mosquitto in docker"
 }
 
-while getopts 'r:b:smh' flag; do
+while getopts 'r:b:p:U:P:smh' flag; do
     case "${flag}" in
         r) LORA_REGION="${OPTARG}"
             echo "LoRaWAN Region set to $LORA_REGION" ;;
         b) LORA_REGION_BAND="${OPTARG}"
             echo "Region Band set to $LORA_REGION_BAND" ;;
+        p) SERVER_PASSWORD="${OPTARG}"
+            echo "Server password to be changed" ;;
+        U) MQTT_USER="${OPTARG}"
+            echo "MQTT username to be changed" ;;
+        P) MQTT_PASS="${OPTARG}"
+            echo "MQTT password to be changed" ;;
         s) STARTUP_SERVICE='false' ;;
         m) ENABLE_MOSQUITTO='true' ;;
         h) print_usage
@@ -75,9 +91,19 @@ echo "Done"
 # docker load -i build/chirpstack-gateway-bridge-$BUILD_ARCH-local.tar
 # echo "Done"
 
-#Chirpstack Network Server Config
+#Chirpstack Config
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
 cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-application-server/chirpstack-application-server.toml
+sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
+sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
+
+sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-application-server/chirpstack-application-server.toml
+sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-application-server/chirpstack-application-server.toml
+sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml
+sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml
+sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
+sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
 
 #System service
 SERVICE_FILE_SERVER=lorawan-server
@@ -91,10 +117,6 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" 
     else
         sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
         sed -i 's,ExecStop=.*,ExecStop='"$(which docker-compose)"' --log-level '"$LOG_LEVEL"' stop,g' systemd/$SERVICE_FILE_SERVER.service
-
-        sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-application-server/chirpstack-application-server.toml
-        sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
-        sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
     fi
 
     echo "creating services $SERVICE_FILE_SERVER"
@@ -131,9 +153,15 @@ elif [ -d "gateway/pico" ]; then
 fi
 
 if [ -d "gateway" ]; then
-    python chirpstack-app-init.py $GW_EUI $LORA_REGION $LORA_REGION_BAND
-else
+    if [ $SERVER_PASSWORD = "NA" ]; then
+        python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND
+    else
+        python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND -p $SERVER_PASSWORD
+    fi
+elif [ $SERVER_PASSWORD = "NA" ]; then
     python chirpstack-app-init.py
+else
+    python chirpstack-app-init.py -p $SERVER_PASSWORD
 fi
 echo
 echo "Finished"

@@ -22,6 +22,8 @@ name="AU_915_928"
 
 [network_server.gateway.backend.mqtt]
 server="tcp://mosquitto:1883"
+username=""
+password=""
 
 [join_server.default]
 server="http://chirpstack-application-server:8003"

@@ -1,6 +1,24 @@
 #!/bin/bash
 set +e
 
+ALL="false"
+
+print_usage() {
+    echo
+    echo " -a    : Remove all docker images and data (postgres + redis + mosquitto)"
+}
+
+while getopts 'ah' flag; do
+    case "${flag}" in
+        a) ALL='true' ;;
+        h) print_usage
+            exit 1 ;;
+        *) print_usage
+            exit 1 ;;
+    esac
+done
+
+
 if [ $UID != 0 ]; then
     echo "ERROR: Operation not permitted. Forgot sudo?"
     exit 1
@@ -26,10 +44,22 @@ docker-compose down -v
 
 docker ps -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1 }' | xargs -I {} docker stop {}
 docker ps -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1 }' | xargs -I {} docker rm {}
-docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker stop {}
-docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker rm {}
+
+if [ $ALL = "true" ]; then
+    docker ps -a | awk '{ print $1,$2 }' | grep postgres | awk '{print $1 }' | xargs -I {} docker stop {}
+    docker ps -a | awk '{ print $1,$2 }' | grep postgres | awk '{print $1 }' | xargs -I {} docker rm {}
+    docker ps -a | awk '{ print $1,$2 }' | grep redis | awk '{print $1 }' | xargs -I {} docker stop {}
+    docker ps -a | awk '{ print $1,$2 }' | grep redis | awk '{print $1 }' | xargs -I {} docker rm {}
+    docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker stop {}
+    docker ps -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1 }' | xargs -I {} docker rm {}
+fi
 echo "Done"
 echo "Removing Chirpstack Docker images..."
 docker images -a | awk '{ print $1,$2 }' | grep chirpstack | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
+if [ $ALL = "true" ]; then
+    docker images -a | awk '{ print $1,$2 }' | grep postgres | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
+    docker images -a | awk '{ print $1,$2 }' | grep redis | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
+    docker images -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
+fi
 
 echo "Finished"
