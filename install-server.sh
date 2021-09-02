@@ -145,7 +145,7 @@ set -e
 echo "Initialising Chirpstack aplication server"
 GW_EUI=
 if [ -d "gateway/rak" ]; then
-    GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/packet_forwarder/lora_pkt_fwd/global_conf.json)
+    GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/rak/packet_forwarder/lora_pkt_fwd/global_conf.json)
     echo "Gateway EUI: $GW_EUI"
 elif [ -d "gateway/pico" ]; then
     GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/pico/pkt_fwd/global_conf.json)

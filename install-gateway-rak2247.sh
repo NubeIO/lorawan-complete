@@ -70,7 +70,7 @@ if [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd" ]; then
     sed -i 's,PKT_FWD_DIR=.*,PKT_FWD_DIR="'"$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/"'",g' start.sh
 
     if [ ! -d "$PKT_FWD_DIR" ]; then
-        mkdir $PKT_FWD_DIR
+        mkdir -p $PKT_FWD_DIR
     fi
     pushd $PKT_FWD_DIR
         set +e
@@ -78,6 +78,7 @@ if [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd" ]; then
         set -e
         wget https://github.com/RAKWireless/rak_common_for_gateway/archive/refs/tags/$VERSION_PKT_FWD.zip -O rak_common_for_gateway.zip
         unzip rak_common_for_gateway.zip
+        rm rak_common_for_gateway.zip
         pushd rak_common_for_gateway-$VERSION_PKT_FWD/lora/$LORA_MODULE
 
             sed -i 's,GATEWAY_EUI_NIC=.*,GATEWAY_EUI_NIC="'"$NIC"'",g' ../update_gwid.sh
@@ -87,7 +88,7 @@ if [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd" ]; then
             cp ../update_gwid.sh packet_forwarder/lora_pkt_fwd/
             cp ../start.sh packet_forwarder/lora_pkt_fwd/
 
-            cp ../../../../configuration/gateway/rak/global_conf.$LORA_REGION.$LORA_REGION_BAND.json packet_forwarder/lora_pkt_fwd/global_conf.json
+            cp ../../../../../configuration/gateway/rak/global_conf.$LORA_REGION.$LORA_REGION_BAND.json packet_forwarder/lora_pkt_fwd/global_conf.json
 
             pushd packet_forwarder/lora_pkt_fwd
                 # remove comment lines...
@@ -100,8 +101,8 @@ if [ ! -f "$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd" ]; then
                 sed -i 's/\"serv_port_down\":.*/\"serv_port_down\": '"$SERV_PORT_DOWN"',/g' global_conf.json
             popd
         popd
-        mv rak_common_for_gateway/lora/$LORA_MODULE/packet_forwarder/ .
-        rm -r rak_common_for_gateway/
+        mv rak_common_for_gateway-$VERSION_PKT_FWD/lora/$LORA_MODULE/packet_forwarder/ .
+        rm -r rak_common_for_gateway-$VERSION_PKT_FWD/
         chmod +x packet_forwarder/lora_pkt_fwd/start.sh packet_forwarder/lora_pkt_fwd/lora_pkt_fwd
     popd
     echo "Done"
