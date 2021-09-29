@@ -86,9 +86,11 @@ echo "Done"
 #Chirpstack
 # Local Images
 # echo "Loading Docker images..."
-# docker load -i build/chirpstack-network-server-$BUILD_ARCH-local.tar
-# docker load -i build/chirpstack-application-server-$BUILD_ARCH-local.tar
-# docker load -i build/chirpstack-gateway-bridge-$BUILD_ARCH-local.tar
+# docker load -i docker-build/chirpstack-network-server-$BUILD_ARCH-local.tar
+# docker load -i docker-build/chirpstack-application-server-$BUILD_ARCH-local.tar
+# docker load -i docker-build/chirpstack-gateway-bridge-$BUILD_ARCH-local.tar
+docker load -i docker-build/postgres-local.tar
+docker load -i docker-build/redis-local.tar
 # echo "Done"
 
 #Chirpstack Config

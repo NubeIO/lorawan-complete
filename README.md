@@ -19,8 +19,10 @@ Server and Gateway can be installed separately
   
 ## Installation
 
-**Note:** if installting both gateway and server it is recommended to install gateway first as it will
+**Note:** 
+- if installting both gateway and server it is recommended to install gateway first as it will
 be automatically added to the server afterwards.
+- Postgres and Redis latest have errors on arm so this requires manually built docker images of older versions.
 ### Gateway
 ```
 sudo bash install-gateway.sh
@@ -28,11 +30,13 @@ sudo bash install-gateway.sh
 - `-h` for help
 
 ### Server
-```
-sudo bash install-server.sh
-```
-(this will take a few minutes to complete)
-- `-h` for help
+1. download the redis and postgres local docker images and copy them to the [docker-build/](docker-build/) folder (`postgres-local.tar` & `redis-local.tar`)
+2. install with command:
+    ```
+    sudo bash install-server.sh
+    ```
+    (this will take a few minutes to complete)
+    - `-h` for help
 
 ### Uninstalling
 
@@ -71,10 +75,10 @@ sudo bash uninstall-server.sh
 Since [Chirpstack-Docker](https://github.com/brocaar/chirpstack-docker) currently doesn't support arm, the docker images must be built manually.  
 This must be done on a seperate system as the build process is too large for an RPi.  
   
-[chirpstack-docker-build.sh](build/chirpstack-docker-build.sh) handles this process (run from inside the [build/](build/) directory).  
+[chirpstack-docker-build.sh](docker-build/chirpstack-docker-build.sh) handles this process (run from inside the [docker-build/](docker-build/) directory).  
   
 This pulls the required chirpstack service repos and performs the docker build with currently experimental build features.  
-3 `.tar` files will be produced and should stay in the [build/](build/) directory to be installed on the target
+3 `.tar` files will be produced and should stay in the [docker-build/](docker-build/) directory to be installed on the target
 - chirpstack-network-server
 - chirpstack-application-server
 - chirpstack-gateway-bridge
@@ -86,7 +90,7 @@ This pulls the required chirpstack service repos and performs the docker build w
 - git
   
 #### Configuration
-Can be tweaked inside [chirpstack-docker-build.sh](build/chirpstack-docker-build.sh)
+Can be tweaked inside [chirpstack-docker-build.sh](docker-build/chirpstack-docker-build.sh)
   
 from [qemu-user-static](https://github.com/multiarch/qemu-user-static#getting-started)
 - `BUILD_ARCH="arm32v7"` | `BUILD_ARCH="arm64v7"`
@@ -102,7 +106,7 @@ from [buildx](https://docs.docker.com/buildx/working-with-buildx/)
 
 **TODO:** slightly out of date.
 
-* `build/`: folder to build and contain docker images
+* `docker-build/`: folder to build and contain docker images
 * `configuration/chirpstack*`: directory containing the ChirpStack configuration files, see:
     * https://www.chirpstack.io/gateway-bridge/install/config/
     * https://www.chirpstack.io/network-server/install/config/

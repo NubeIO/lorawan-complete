@@ -43,7 +43,7 @@ services:
 
 
   postgresql:
-    image: postgres:9.6-alpine
+    image: postgres:local
     environment:
       - POSTGRES_PASSWORD=root
     security_opt:
@@ -59,7 +59,7 @@ services:
 
 
   redis:
-    image: redis:5-alpine
+    image: redis:local
     volumes:
       - redisdata:/data
     logging:
