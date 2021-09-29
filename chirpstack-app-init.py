@@ -135,6 +135,7 @@ if gateway_profiles and gw_eui != None and gwp_id != None:
                              "id": gw_eui,
                              "networkServerID": ""+nw_id,
                              "organizationID": ""+org_id,
+                             "serviceProfileID": ""+sp_id,
                              "location": {
                                  "accuracy": 0,
                                  "altitude": 0,

@@ -1,11 +1,8 @@
 {
     "deviceProfile": {
-        "name": "Ellenex-ABP_PDT2-L",
+        "name": "Ellenex-PDT2-L-OTAA",
         "macVersion": "1.0.2",
-        "supportsJoin": false,
-        "rfRegion": "AU915",
-        "rxDataRate2": 8,
-        "rxFreq2": 923300000,
+        "supportsJoin": true,
         "payloadCodec": "CUSTOM_JS",
         "payloadEncoderScript": "",
         "payloadDecoderScript": "function Decode(fPort, bytes, variables) {\n    var payload = {};\n\n    // - [0-1] (2) - Last 2 bytes of the DevEui\n    // - [2]   (1) - Type of payload (0 for sensor readings)\n    // - [3-6] (4) - Data\n    //              - [3-4] - Pressure\n    //              - [5-6] - Temperature\n    // - [7]   (1) - Battery voltage in tenths of a volt\n    if (bytes[2] != 0) {\n        return {};\n    }\n\n    // Note that if the pressure field is greater than 0x8000, the\n    //  device reads a negative pressure which is equal to two’s complement\n    //  of the pressure field.\n    payload.pressure = ((bytes[3] << 8) | bytes[4]);\n    if (payload.pressure > 0x8000) {\n        // TODO: test which one for negative pressure\n        // payload.pressure = (payload.pressure & 0x7FFF) * -1;\n        payload.pressure *= -1;\n    }\n\n    payload.temperature = (bytes[5] << 8) | bytes[6];\n    if (payload.temperature > 0x8000) {\n        // TODO: test which one for negative temperature\n        // payload.temperature = (payload.temperature & 0x7FFF) * -1;\n        payload.temperature *= -1;\n    }\n    payload.temperature *= 0.01;\n    \n    payload.voltage = (bytes[bytes.length - 1] * 0.1);\n\n    return payload;\n}"
