@@ -52,7 +52,7 @@ SERV_PORT_DOWN=$(jq -r .gateway_conf.server_port_down $CFG_DIR/global_conf.json)
 mv $CFG_DIR/global_conf.json $CFG_DIR/global_conf.json.OLD
 cp configuration/gateway/$LORA_MODULE/global_conf.$LORA_REGION.$LORA_REGION_BAND.json $CFG_DIR/global_conf.json
 sed -i 's,/\*.*,,g' $CFG_DIR/global_conf.json
-sed -i 's/\"gateway_ID\":.*/\"gateway_ID\": \"'"$GW_ID"'\",/g' $CFG_DIR/global_conf.json
+sed -i 's/\"gateway_ID\":.*/\"gateway_ID\": \"'"$GW_EUI"'\",/g' $CFG_DIR/global_conf.json
 sed -i 's/\"server_address\":.*/\"server_address\": \"'"$SERV_ADDR"'\",/g' $CFG_DIR/global_conf.json
 sed -i 's/\"serv_port_up\":.*/\"serv_port_up\": '"$SERV_PORT_UP"',/g' $CFG_DIR/global_conf.json
 sed -i 's/\"serv_port_down\":.*/\"serv_port_down\": '"$SERV_PORT_DOWN"',/g' $CFG_DIR/global_conf.json
