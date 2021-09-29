@@ -155,8 +155,8 @@ else:
 resp = requests.post('http://127.0.0.1:8080/api/applications',
                      headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
                      json={"application": {
-                         "description": "default-app",
                          "name": "default-app",
+                         "description": "default-app",
                          "organizationID": ""+org_id,
                          "serviceProfileID": ""+sp_id
                      }}
@@ -166,6 +166,30 @@ if resp.status_code < 200 or resp.status_code >= 300:
     exit(1)
 app_id = resp.json()['id']
 print('App ID: ' + app_id)
+try:
+        with open('init-data/device-models.json') as json_file:
+            try:
+                d = json.load(json_file)
+            except:
+                print('Error adding application', json_file)
+            for obj in d:
+                resp = requests.post('http://127.0.0.1:8080/api/applications',
+                        headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                        json={"application": {
+                            "name": obj['name'],
+                            "description": obj['description'],
+                            "organizationID": ""+org_id,
+                            "serviceProfileID": ""+sp_id
+                        }}
+                )
+                if resp.status_code < 200 or resp.status_code >= 300:
+                    print("POST Application Failure - StatusCode: ", resp.status_code)
+                    exit(1)
+                app_id = resp.json()['id']
+                print('App ID: ' + app_id)
+
+except IOError:
+    print("No init data provided with init_data.json")
 
 
 # device data
