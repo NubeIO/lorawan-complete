@@ -1,9 +1,21 @@
+import argparse
 import requests
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', metavar='username', type=str,
+                    help='Server username', default='admin')
+parser.add_argument('-p', metavar='password', type=str,
+                    help='Server password', default='admin')
+
+args = parser.parse_args()
+
+username = args.u
+password = args.p
 
 try:
     # login
     resp = requests.post('http://127.0.0.1:8080/api/internal/login',
-                        json={'email': 'admin', 'password': 'admin'},
+                        json={'email': username, 'password': password},
                         )
     if resp.status_code < 200 or resp.status_code >= 300:
         print("Login Failure - StatusCode: ", resp.status_code)

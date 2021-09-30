@@ -1,0 +1,58 @@
+{
+  "gatewayProfile": {
+    "name": "as920",
+    "networkServerID": "",
+    "channels": [0, 1],
+    "extraChannels": [
+      {
+        "modulation": "LORA",
+        "frequency": 922200000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 922400000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 922600000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 922800000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 923000000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 922000000,
+        "bandwidth": 125,
+        "bitrate": 0,
+        "spreadingFactors": [7, 8, 9, 10, 11, 12]
+      },
+      {
+        "modulation": "LORA",
+        "frequency": 922100000,
+        "bandwidth": 250,
+        "bitrate": 0,
+        "spreadingFactors": [7]
+      }
+    ]
+  }
+}

@@ -15,13 +15,15 @@ net_id="000000"
 device_session_ttl="876000h0m0s"
 
 [network_server.band]
-name="AU_915_928"
+name="AU915"
 
   [network_server.network_settings]
   enabled_uplink_channels=[]
 
 [network_server.gateway.backend.mqtt]
 server="tcp://mosquitto:1883"
+username=""
+password=""
 
 [join_server.default]
 server="http://chirpstack-application-server:8003"

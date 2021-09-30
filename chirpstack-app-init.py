@@ -1,27 +1,31 @@
 import sys
+import argparse
 import json
 import requests
 from os import walk
 from os.path import join
 
-# get gw_eui and band channels
-gw_eui = None
-channels = None
-if len(sys.argv) == 3:
-    gw_eui = sys.argv[1]
-    channel_band = sys.argv[2]
-else:
-    print('no GW EUI and channel band provided')
-    exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument('-g', metavar='eui', type=str,
+                    help='Gateway EUI')
+parser.add_argument('-r', metavar='region', type=str,
+                    help='Gateway region (i.e. au915)')
+parser.add_argument('-b', metavar='band', type=int,
+                    help='Gateway band (i.e. 0)')
+parser.add_argument('-p', metavar='password', type=str,
+                    help='Server password')
 
-if channel_band == '0':
-#     channels = [0, 1, 2, 3, 4, 5, 6, 7, 64]
-elif channel_band == '1':
-#     channels = [8, 9, 10, 11, 12, 13, 14, 15, 65]
-else:
-    print('Channel band not supported')
-    exit(1)
-channels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 64, 65]
+args = parser.parse_args()
+
+gw_eui = args.g
+gw_region = args.r
+gw_band = args.b
+password = args.p
+
+if gw_eui is not None or gw_region is not None or gw_band is not None:
+    if gw_eui is None or gw_region is None or gw_band is None:
+        print("Error: Missing gateway arguments!")
+        exit(1)
 
 # login
 resp = requests.post('http://127.0.0.1:8080/api/internal/login',
@@ -58,21 +62,44 @@ if resp.status_code < 200 or resp.status_code >= 300:
 nw_id = resp.json()['id']
 print('Network Server ID: ' + nw_id)
 
+
 # gateway profile
-resp = requests.post('http://127.0.0.1:8080/api/gateway-profiles',
-                     headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
-                     json={"gatewayProfile": {
-                         "channels": channels,
-                         "name": "local-gateway-profile",
-                         "networkServerID": ""+nw_id
-                     }}
-                     )
+gateway_profiles = {}
 gwp_id = None
-if resp.status_code < 200 or resp.status_code >= 300:
-    print("POST Gateway Profile Failure - StatusCode: ", resp.status_code)
-else:
-    gwp_id = resp.json()['id']
-    print('Gateway Profile ID: ' + gwp_id)
+try:
+    path = 'init-data/gateway-profiles'
+    _, _, filenames = next(walk(path), (None, None, []))
+    for file in filenames:
+        f_split = file.split('.')
+        if len(f_split) != 3:
+            print("Gateway profile file with invalid name: " + file)
+        try:
+            with open(join(path, file)) as json_file:
+                d = json.load(json_file)
+                d['gatewayProfile']['networkServerID'] = '' + nw_id
+
+                resp = requests.post('http://127.0.0.1:8080/api/gateway-profiles',
+                                     headers={
+                                         'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                                     json=d
+                                     )
+                if resp.status_code < 200 or resp.status_code >= 300:
+                    print("POST Gateway Profile Failure - StatusCode: ",
+                          resp.status_code)
+                    print(resp.json())
+                else:
+                    print("Added gateway profile " +
+                          d['gatewayProfile']['name'])
+                    gateway_profiles[d['gatewayProfile']['name']] = resp.json()[
+                        'id']
+                    if gw_region == f_split[0] and str(gw_band) == f_split[1]:
+                        gwp_id = resp.json()['id']
+
+        except:
+            print('Error adding gateway profile', file)
+
+except IOError:
+    print("No gateway profiles to add")
 
 
 # service profile
@@ -96,18 +123,19 @@ print('Service Profile ID: ' + sp_id)
 
 
 # gateway
-if gwp_id != None and gw_eui != None:
+if gateway_profiles and gw_eui != None and gwp_id != None:
     resp = requests.post('http://127.0.0.1:8080/api/gateways',
                          headers={
                              'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
                          json={"gateway": {
-                             "description": "rak2247 USB PCIe w/ rak packet forwarder",
+                             "description": "default gateway",
                              "discoveryEnabled": False,
                              "gatewayProfileID": ""+gwp_id,
-                             "name": "local-rak-gateway",
+                             "name": "default-gateway",
                              "id": gw_eui,
                              "networkServerID": ""+nw_id,
                              "organizationID": ""+org_id,
+                             "serviceProfileID": ""+sp_id,
                              "location": {
                                  "accuracy": 0,
                                  "altitude": 0,
@@ -127,8 +155,8 @@ else:
 resp = requests.post('http://127.0.0.1:8080/api/applications',
                      headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
                      json={"application": {
-                         "description": "default-app",
                          "name": "default-app",
+                         "description": "default-app",
                          "organizationID": ""+org_id,
                          "serviceProfileID": ""+sp_id
                      }}
@@ -138,12 +166,36 @@ if resp.status_code < 200 or resp.status_code >= 300:
     exit(1)
 app_id = resp.json()['id']
 print('App ID: ' + app_id)
+try:
+        with open('init-data/device-models.json') as json_file:
+            try:
+                d = json.load(json_file)
+            except:
+                print('Error adding application', json_file)
+            for obj in d:
+                resp = requests.post('http://127.0.0.1:8080/api/applications',
+                        headers={'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                        json={"application": {
+                            "name": obj['name'],
+                            "description": obj['description'],
+                            "organizationID": ""+org_id,
+                            "serviceProfileID": ""+sp_id
+                        }}
+                )
+                if resp.status_code < 200 or resp.status_code >= 300:
+                    print("POST Application Failure - StatusCode: ", resp.status_code)
+                    exit(1)
+                app_id = resp.json()['id']
+                print('App ID: ' + app_id)
+
+except IOError:
+    print("No init data provided with init_data.json")
 
 
 # device data
 device_profiles = {}
 try:
-    path = 'init_data/resources/device_profiles'
+    path = 'init-data/device-profiles'
     _, _, filenames = next(walk(path), (None, None, []))
     for file in filenames:
         try:
@@ -170,3 +222,19 @@ try:
 
 except IOError:
     print("No init data provided with init_data.json")
+
+# user password
+if password is not None:
+    resp = requests.put('http://127.0.0.1:8080/api/users/1/password',
+                        headers={
+                            'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                        json={
+                            "password": password
+                        }
+                        )
+    if resp.status_code < 200 or resp.status_code >= 300:
+        print("PUT Password Failure - StatusCode: ", resp.status_code)
+        exit(1)
+    print('User password updated')
+
+print('Data initialisation done')

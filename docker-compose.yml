@@ -2,7 +2,7 @@ version: "3"
 
 services:
   chirpstack-network-server:
-    image: chirpstack-network-server-arm32v7-local
+    image: chirpstack/chirpstack-network-server:3.15
     volumes:
       - ./configuration/chirpstack-network-server:/etc/chirpstack-network-server
     logging:
@@ -14,7 +14,7 @@ services:
      - "host.docker.internal:host-gateway"
 
   chirpstack-application-server:
-    image: chirpstack-application-server-arm32v7-local
+    image: chirpstack/chirpstack-application-server:3.17
     ports:
       - 8080:8080
     volumes:
@@ -28,7 +28,7 @@ services:
      - "host.docker.internal:host-gateway"
 
   chirpstack-gateway-bridge:
-    image: chirpstack-gateway-bridge-arm32v7-local
+    image: chirpstack/chirpstack-gateway-bridge:3.13
     ports:
       - 1700:1700/udp
     volumes:
@@ -43,7 +43,7 @@ services:
 
 
   postgresql:
-    image: postgres:9.6-alpine
+    image: postgres:local
     environment:
       - POSTGRES_PASSWORD=root
     security_opt:
@@ -59,7 +59,7 @@ services:
 
 
   redis:
-    image: redis:5-alpine
+    image: redis:local
     volumes:
       - redisdata:/data
     logging:

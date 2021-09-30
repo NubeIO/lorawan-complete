@@ -6,7 +6,8 @@ Description="LoRaWAN Gateway"
 [Service]
 WorkingDirectory=~/<WILL_BE_EDITED>
 ExecStart=<WILL_BE_EDITED>
-TimeoutStartSec=0
+Restart=on-failure
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
