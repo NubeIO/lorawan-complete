@@ -23,7 +23,7 @@ PKT_FWD_DIR="gateway/pico"
 
 print_usage() {
     echo
-    echo " -r <region>    : Region [au915, us902, eu868, as923]. Default au915"
+    echo " -r <region>    : Region [au915, us902, eu868, as923, as920]. Default au915"
     echo " -b <band>      : Region Band [0,1] (for AU and US).   Default 0"
     echo " -a <IP>        : Server address.               Default localhost"
     echo " -u <port>      : Server port up.               Default 1700"

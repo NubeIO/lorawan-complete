@@ -1,10 +1,30 @@
 [
     {
+        "name": "ELSYS-ERS",
+        "description": ""
+    },
+    {
         "name": "ELSYS-ERS-CO2",
         "description": ""
     },
     {
+        "name": "ELSYS-ERS-CO2-LITE",
+        "description": ""
+    },
+    {
         "name": "ELSYS-EMS",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-EMS-DOOR",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-ELT-2",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-ELT-2-HP",
         "description": ""
     },
     {

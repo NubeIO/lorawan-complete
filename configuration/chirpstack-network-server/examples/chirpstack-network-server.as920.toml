@@ -1,7 +1,7 @@
 # See https://www.chirpstack.io/network-server/install/config/ for a full
 # configuration example and documentation.
 #
-# This file is for the AS923 ("AS2") band. See the examples/ folder for more
+# This file is for the AS920 ("AS1") band. See the examples/ folder for more
 # configuration examples.
 
 [postgresql]
@@ -16,44 +16,44 @@ device_session_ttl="876000h0m0s"
 
 [network_server.band]
 # check https://www.chirpstack.io/network-server/features/regions/
-# for names.
-name="AS923"
+# for names. AS923-2 = 920-923
+name="AS923-2"
 
   [network_server.network_settings]
   enabled_uplink_channels=[]
 
   [[network_server.network_settings.extra_channels]]
-  frequency=923600000
+  frequency=922200000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=923800000
+  frequency=922400000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=924000000
+  frequency=922600000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=924200000
+  frequency=922800000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=924400000
+  frequency=923000000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=924600000
+  frequency=922000000
   min_dr=0
   max_dr=5
 
   [[network_server.network_settings.extra_channels]]
-  frequency=924500000
+  frequency=922100000
   min_dr=6
   max_dr=6
 
