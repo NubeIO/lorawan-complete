@@ -2,6 +2,7 @@
 set -e
 
 # -- User Config --
+PKT_FWD_DIR="gateway"
 LORA_MODULE="rak"
 LORA_REGION="au915"
 LORA_REGION_BAND=0
@@ -46,8 +47,8 @@ fi
 sed -i 's,/\*.*,,g' $CFG_DIR/global_conf.json
 GW_EUI=$(jq -r .gateway_conf.gateway_ID $CFG_DIR/global_conf.json)
 SERV_ADDR=$(jq -r .gateway_conf.server_address $CFG_DIR/global_conf.json)
-SERV_PORT_UP=$(jq -r .gateway_conf.server_port_up $CFG_DIR/global_conf.json)
-SERV_PORT_DOWN=$(jq -r .gateway_conf.server_port_down $CFG_DIR/global_conf.json)
+SERV_PORT_UP=$(jq -r .gateway_conf.serv_port_up $CFG_DIR/global_conf.json)
+SERV_PORT_DOWN=$(jq -r .gateway_conf.serv_port_down $CFG_DIR/global_conf.json)
 
 mv $CFG_DIR/global_conf.json $CFG_DIR/global_conf.json.OLD
 cp configuration/gateway/$LORA_MODULE/global_conf.$LORA_REGION.$LORA_REGION_BAND.json $CFG_DIR/global_conf.json
