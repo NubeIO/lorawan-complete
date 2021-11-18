@@ -21,7 +21,7 @@ LOG_LEVEL=WARNING
 
 print_usage() {
     echo
-    echo " -r <region>    : Region [au915, us902, eu868, as923, as920]. Default au915"
+    echo " -r <region>    : Region [au915, us915, eu868, as923, as920]. Default au915"
     echo " -b <band>      : Region Band [0,1] (for AU and US).   Default 0"
     echo " -p <password>  : Server password"
     echo " -U <username>  : MQTT broker username"
@@ -57,7 +57,7 @@ if [ $UID != 0 ]; then
     exit 1
 fi
 
-chmod +x gateway-change-freq.sh server-change-freq.sh uninstall-gateway.sh uninstall-server.sh start.sh stop.sh
+chmod +x change-freq-gateway.sh change-freq-server.sh uninstall-gateway.sh uninstall-server.sh start.sh stop.sh
 
 #Dependencies
 echo "Dependencies..."
@@ -95,7 +95,11 @@ docker load -i docker-build/redis-local.tar
 
 #Chirpstack Config
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
-cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+if [ $LORA_REGION = "au915" ] || [ $LORA_REGION = "us915" ]; then
+    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+else
+    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+fi
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-application-server/chirpstack-application-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
@@ -122,7 +126,7 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" 
     fi
 
     echo "creating services $SERVICE_FILE_SERVER"
-    cp systemd/$SERVICE_FILE_SERVER.service /etc/systemd/system/$SERVICE_FILE_SERVER.service
+    cp systemd/$SERVICE_FILE_SERVER.service /lib/systemd/system/$SERVICE_FILE_SERVER.service
     systemctl daemon-reload
     systemctl enable $SERVICE_FILE_SERVER.service
     service $SERVICE_FILE_SERVER start

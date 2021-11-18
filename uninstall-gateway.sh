@@ -9,10 +9,10 @@ fi
 #System service
 SERVICE_FILE_GATEWAY=lorawan-gateway
 echo "Removing system service"
-if [ -f "/etc/systemd/system/$SERVICE_FILE_GATEWAY.service" ]; then
+if [ -f "/lib/systemd/system/$SERVICE_FILE_GATEWAY.service" ]; then
     service $SERVICE_FILE_GATEWAY stop
     systemctl disable $SERVICE_FILE_GATEWAY.service
-    sudo rm /etc/systemd/system/$SERVICE_FILE_GATEWAY.service
+    sudo rm /lib/systemd/system/$SERVICE_FILE_GATEWAY.service
 fi
 systemctl daemon-reload
 echo "Done"

@@ -4,11 +4,27 @@
         "description": ""
     },
     {
+        "name": "ELSYS-ERS-LITE",
+        "description": ""
+    },
+    {
         "name": "ELSYS-ERS-CO2",
         "description": ""
     },
     {
         "name": "ELSYS-ERS-CO2-LITE",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-ERS-SOUND",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-ERS-VOC",
+        "description": ""
+    },
+    {
+        "name": "ELSYS-ERS-EYE",
         "description": ""
     },
     {

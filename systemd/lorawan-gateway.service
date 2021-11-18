@@ -1,4 +1,4 @@
-# /etc/systemd/system/lorawan-gateway.service
+# /lib/systemd/system/lorawan-gateway.service
 
 [Unit]
 Description="LoRaWAN Gateway"

@@ -112,7 +112,9 @@ resp = requests.post('http://127.0.0.1:8080/api/service-profiles',
                          "nwkGeoLoc": False,
                          "reportDevStatusBattery": False,
                          "reportDevStatusMargin": False,
-                         "organizationID": ""+org_id
+                         "organizationID": ""+org_id,
+                         "drMax": 6,
+                         "drMin": 0,
                      }}
                      )
 if resp.status_code < 200 or resp.status_code >= 300:

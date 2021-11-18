@@ -25,7 +25,9 @@ be automatically added to the server afterwards.
 - Postgres and Redis latest have errors on arm so this requires manually built docker images of older versions.
 ### Gateway
 ```
-sudo bash install-gateway.sh
+sudo bash install-gateway-pico.sh -h
+OR
+sudo bash install-gateway-rak2247.sh -h
 ```
 - `-h` for help
 
@@ -33,7 +35,7 @@ sudo bash install-gateway.sh
 1. download the redis and postgres local docker images and copy them to the [docker-build/](docker-build/) folder (`postgres-local.tar` & `redis-local.tar`)
 2. install with command:
     ```
-    sudo bash install-server.sh
+    sudo bash install-server.sh -h
     ```
     (this will take a few minutes to complete)
     - `-h` for help

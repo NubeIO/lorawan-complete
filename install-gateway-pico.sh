@@ -23,7 +23,7 @@ PKT_FWD_DIR="gateway/pico"
 
 print_usage() {
     echo
-    echo " -r <region>    : Region [au915, us902, eu868, as923, as920]. Default au915"
+    echo " -r <region>    : Region [au915, us915, eu868, as923, as920]. Default au915"
     echo " -b <band>      : Region Band [0,1] (for AU and US).   Default 0"
     echo " -a <IP>        : Server address.               Default localhost"
     echo " -u <port>      : Server port up.               Default 1700"
@@ -130,7 +130,7 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_GATEWAY.service"
     sed -i 's,ExecStart=.*,ExecStart='"$(pwd)/$PKT_FWD_DIR/pkt_fwd/lora_pkt_fwd"',g' systemd/$SERVICE_FILE_GATEWAY.service
 
     echo "creating service $SERVICE_FILE_GATEWAY"
-    cp systemd/$SERVICE_FILE_GATEWAY.service /etc/systemd/system/$SERVICE_FILE_GATEWAY.service
+    cp systemd/$SERVICE_FILE_GATEWAY.service /lib/systemd/system/$SERVICE_FILE_GATEWAY.service
     systemctl daemon-reload
     systemctl enable $SERVICE_FILE_GATEWAY.service
     service $SERVICE_FILE_GATEWAY start

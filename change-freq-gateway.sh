@@ -11,7 +11,7 @@ CFG_DIR=""
 
 print_usage() {
     echo
-    echo " -r <region>       : Region [au915, us902, eu868, as923, as920]"
+    echo " -r <region>       : Region [au915, us915, eu868, as923, as920]"
     echo " -b <band>         : Region Band [0,1] (for AU and US)"
     echo " -c <concentrator> : Concentrator [rak, pico]"
 }

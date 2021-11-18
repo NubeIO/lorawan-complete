@@ -12,7 +12,7 @@ MQTT_PASS=""
 
 print_usage() {
     echo
-    echo " -r <region>       : Region [au915, us902, eu868, as923, as920]"
+    echo " -r <region>       : Region [au915, us915, eu868, as923, as920]"
     echo " -b <band>         : Region Band [0,1] (for AU and US)"
     # echo " -u <user>         : Server username"
     # echo " -p <pass>         : Server password"
@@ -47,7 +47,11 @@ echo "Stopping server"
 systemctl stop lorawan-server.service
 
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
-cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+if [ $LORA_REGION = "au915" ] || [ $LORA_REGION = "us915" ]; then
+    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+else
+    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+fi
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml

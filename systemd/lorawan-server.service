@@ -1,4 +1,4 @@
-# /etc/systemd/system/lorawan-server.service
+# /lib/systemd/system/lorawan-server.service
 
 [Unit]
 Description="LoRaWAN ChirpStack Server"

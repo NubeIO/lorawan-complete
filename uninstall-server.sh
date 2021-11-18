@@ -31,10 +31,10 @@ echo "Done"
 #System service
 SERVICE_FILE_SERVER=lorawan-server
 echo "Removing system service"
-if [ -f "/etc/systemd/system/$SERVICE_FILE_SERVER.service" ]; then
+if [ -f "/lib/systemd/system/$SERVICE_FILE_SERVER.service" ]; then
     service $SERVICE_FILE_SERVER stop
     systemctl disable $SERVICE_FILE_SERVER.service
-    sudo rm /etc/systemd/system/$SERVICE_FILE_SERVER.service
+    sudo rm /lib/systemd/system/$SERVICE_FILE_SERVER.service
 fi
 systemctl daemon-reload
 echo "Done"
