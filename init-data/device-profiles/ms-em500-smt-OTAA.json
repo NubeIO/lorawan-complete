@@ -1,0 +1,11 @@
+{
+    "deviceProfile": {
+        "name": "MS-EM500-SMT-OTAA",
+        "macVersion": "1.0.3",
+        "regParamsRevision": "",
+        "supportsJoin": true,
+        "payloadCodec": "CUSTOM_JS",
+        "payloadEncoderScript": "",
+        "payloadDecoderScript": "/**\n * Payload Decoder for Chirpstack and Milesight network server\n * \n * Copyright 2021 Milesight IoT\n * \n * @product EM500-SMT\n */\nfunction Decode(fPort, bytes) {\n    var decoded = {};\n\n    for (var i = 0; i < bytes.length;) {\n        var channel_id = bytes[i++];\n        var channel_type = bytes[i++];\n        // BATTERY\n        if (channel_id === 0x01 && channel_type === 0x75) {\n            decoded.battery = bytes[i];\n            i += 1;\n        }\n        // TEMPERATURE\n        else if (channel_id === 0x03 && channel_type === 0x67) {\n            // ℃\n            decoded.temperature = readInt16LE(bytes.slice(i, i + 2)) / 10;\n            i += 2;\n\n            // ℉\n            // decoded.temperature = readInt16LE(bytes.slice(i, i + 2)) / 10 * 1.8 + 32;\n            // i +=2;\n        }\n        // HUMIDITY\n        //old resolution 0.5\n        else if (channel_id === 0x04 && channel_type === 0x68) {\n            decoded.humidity = bytes[i] / 2;\n            i += 1;\n        }\n        //new resolution 0.01\n        else if (channel_id === 0x04 && channel_type === 0xCA) {\n            decoded.humidity = readInt16LE(bytes.slice(i, i + 2)) / 100;\n            i += 2;\n        }\n        // EC\n        else if (channel_id === 0x05 && channel_type === 0x7F) {\n            decoded.ec = readUInt16LE(bytes.slice(i, i + 2));\n            i += 2;\n        } else {\n            decoded.error = true;\n            decoded.channel_id = channel_id;\n            decoded.channel_type = channel_type;\n            break;\n        }\n    }\n\n    return decoded;\n}\n\n/* ******************************************\n * bytes to number\n ********************************************/\nfunction readUInt16LE(bytes) {\n    var value = (bytes[1] << 8) + bytes[0];\n    return value & 0xffff;\n}\n\nfunction readInt16LE(bytes) {\n    var ref = readUInt16LE(bytes);\n    return ref > 0x7fff ? ref - 0x10000 : ref;\n}"
+    }
+}
