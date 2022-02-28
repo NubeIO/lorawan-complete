@@ -9,5 +9,8 @@ ExecStart=<WILL_BE_EDITED>
 Restart=on-failure
 RestartSec=10
 
+ExecStartPre=-/usr/bin/python /home/pi/reset-rj12-all.py
+ExecStartPre=sleep 5
+
 [Install]
 WantedBy=multi-user.target
