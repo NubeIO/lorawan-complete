@@ -20,3 +20,6 @@ public_host="chirpstack-application-server:8001"
 [application_server.external_api]
 bind="0.0.0.0:8080"
 jwt_secret="noobsecret"
+
+[application_server.codec.js]
+max_execution_time="200ms"
