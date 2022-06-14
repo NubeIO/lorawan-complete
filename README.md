@@ -69,6 +69,27 @@ sudo bash uninstall-server.sh
 **Start**: `sudo ./start.sh`  
 **Stop**: `sudo ./stop.sh`  
 
+## Gateway Decoder
+
+A small application to run and decode just the gateway.  
+Useful for site and sensor testing
+
+### Setup
+1. 
+    ```
+    cd gateway-decoder && npm install && cd ../
+    ```
+2. [_Optional_] Install gateway:
+    ```
+    sudo bash install-gateway-<pico/rak2247>.sh -s
+    ```
+
+### Run
+```
+bash gateway-decode.sh
+```
+`-h` for options. Can use `-j` to print only unformatted JSON and pipe output to file or use in some display format
+
 ---
 ## (LEGACY) Building (Only required for chirpstack updates and not installing on devices)
 

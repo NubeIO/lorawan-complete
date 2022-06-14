@@ -115,7 +115,7 @@ fi
 SERVICE_FILE_GATEWAY=lorawan-gateway
 if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_GATEWAY.service" ]; then
     echo "Enabling system startup service"
-    
+
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/"',g' systemd/$SERVICE_FILE_GATEWAY.service
     sed -i 's,ExecStart=.*,ExecStart='"$(pwd)/$PKT_FWD_DIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd"',g' systemd/$SERVICE_FILE_GATEWAY.service
 

@@ -1,0 +1,15 @@
+{
+  "name": "lorawan-decoder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "decode.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lora-packet": "^0.8.15",
+    "yargs": "^17.5.1"
+  }
+}
