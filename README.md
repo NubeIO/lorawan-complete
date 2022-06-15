@@ -52,6 +52,13 @@ sudo bash uninstall-server.sh
 ``` 
 ## Usage
 
+### MQTT Uplink Topic
+```
+application/<app_ID>/device/<device_EUI>/event/up
+```
+1. Check your device EUI is correct.
+2. Check the Application ID is correct. Go to the web app and check what number is next to the application
+
 ### Stopping / Starting
 
 #### System services enabled:
