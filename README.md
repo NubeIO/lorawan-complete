@@ -23,6 +23,15 @@ Server and Gateway can be installed separately
 - if installting both gateway and server it is recommended to install gateway first as it will
 be automatically added to the server afterwards.
 - Postgres and Redis latest have errors on arm so this requires manually built docker images of older versions.
+
+### Download
+```
+export LORAWAN_VERSION=x.x.x
+```
+where `x.x.x` = version number (i.e. `export LORAWAN_VERSION=2.2.1`)
+```
+wget https://github.com/NubeIO/lorawan-complete/archive/refs/tags/v$LORAWAN_VERSION.zip && wget https://github.com/NubeIO/lorawan-complete/releases/download/v$LORAWAN_VERSION/docker-builds.zip && unzip v$LORAWAN_VERSION.zip && unzip docker-builds.zip -d lorawan-complete-$LORAWAN_VERSION/docker-build && sudo rm docker-builds.zip && cd lorawan-complete-$LORAWAN_VERSION/
+```
 ### Gateway
 ```
 sudo bash install-gateway-pico.sh -h
