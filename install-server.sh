@@ -79,7 +79,7 @@ if ! hash docker > /dev/null; then
     set -e
 fi
 # Install requirements
-apt install -y docker-compose git python-pip python3-pip jq
+apt install -y docker-compose git python3-pip jq
 pip install requests
 echo "Done"
 
