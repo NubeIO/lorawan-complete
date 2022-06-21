@@ -9,7 +9,7 @@ ExecStart=<WILL_BE_EDITED>
 Restart=on-failure
 RestartSec=10
 
-ExecStartPre=-/usr/bin/python /home/pi/reset-rj12-all.py
+ExecStartPre=-/bin/bash /home/pi/scripts/reset-usb-all.sh
 ExecStartPre=sleep 5
 
 [Install]

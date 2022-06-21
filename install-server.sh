@@ -15,6 +15,7 @@ MQTT_PASS=""
 
 STARTUP_SERVICE='true'
 ENABLE_MOSQUITTO='false'
+UPDATE_MOSQUITTO='true'
 
 LOG_LEVEL=WARNING
 
@@ -28,9 +29,10 @@ print_usage() {
     echo " -P <password>  : MQTT broker password"
     echo " -s             : Disable startup service"
     echo " -m             : Enable Mosquitto in docker"
+    echo " -n             : Don't update Mosquitto config"
 }
 
-while getopts 'r:b:p:U:P:smh' flag; do
+while getopts 'r:b:p:U:P:smnh' flag; do
     case "${flag}" in
         r) LORA_REGION="${OPTARG}"
             echo "LoRaWAN Region set to $LORA_REGION" ;;
@@ -44,6 +46,7 @@ while getopts 'r:b:p:U:P:smh' flag; do
             echo "MQTT password to be changed" ;;
         s) STARTUP_SERVICE='false' ;;
         m) ENABLE_MOSQUITTO='true' ;;
+        m) UPDATE_MOSQUITTO='false' ;;
         h) print_usage
             exit 1 ;;
         *) print_usage
@@ -111,6 +114,13 @@ sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-
 sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
 sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
 
+# Update Mosquitto
+if [ $UPDATE_MOSQUITTO = 'true' ]; then
+    echo "Updating Mosquitto for Docker..."
+    . update-mosquitto.sh
+    echo "Updating Mosquitto for Docker Done"
+fi
+
 #System service
 SERVICE_FILE_SERVER=lorawan-server
 if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" ]; then
@@ -129,9 +139,15 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" 
     cp systemd/$SERVICE_FILE_SERVER.service /lib/systemd/system/$SERVICE_FILE_SERVER.service
     systemctl daemon-reload
     systemctl enable $SERVICE_FILE_SERVER.service
-    service $SERVICE_FILE_SERVER start
+    systemctl start $SERVICE_FILE_SERVER.service
 else
     echo "No system startup service."
+fi
+
+# Restart Mosquitto
+if [ $UPDATE_MOSQUITTO = 'true' ]; then
+    echo "Restarting Mosquitto for changes to take effect."
+    systemctl restart mosquitto.service
 fi
 
 #Init chirpstack application data
