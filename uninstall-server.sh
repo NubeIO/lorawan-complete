@@ -3,6 +3,9 @@ set +e
 
 ALL="false"
 
+MOSQUITTO_CONFIG_FILE="/etc/mosquitto/mosquitto.conf"
+MOSQUITTO_SERVICE_FILE="/lib/systemd/system/mosquitto.service"
+
 print_usage() {
     echo
     echo " -a    : Remove all docker images and data (postgres + redis + mosquitto)"
@@ -61,5 +64,8 @@ if [ $ALL = "true" ]; then
     docker images -a | awk '{ print $1,$2 }' | grep redis | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
     docker images -a | awk '{ print $1,$2 }' | grep mosquitto | awk '{print $1":"$2 }' | xargs -I {} docker rmi {}
 fi
+
+echo "Updating Mosquitto Config and Service"
+. update-mosquitto.sh -r
 
 echo "Finished"
