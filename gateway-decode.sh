@@ -8,7 +8,7 @@ UP_DIR_RAK="../../../../"
 PKT_FWD_DIR_PICO="gateway/pico/pkt_fwd/"
 UP_DIR_PICO="../../../"
 PKT_FWD_DIR=$PKT_FWD_DIR_PICO
-UP_DIR=$PKT_FWD_DIR_PICO
+UP_DIR=$UP_DIR_PICO
 FLAGS=
 
 print_usage() {

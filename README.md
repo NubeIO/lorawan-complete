@@ -91,7 +91,21 @@ application/+/device/<device_EUI>/event/up
 A small application to run and decode just the gateway.  
 Useful for site and sensor testing
 
-### Setup
+### Docker
+#### Build (Optional if you don't have an image already)
+```
+docker build --file gateway-decoder/Dockerfile --tag lorawan_gateway_test .
+or
+bash gateway-decoder-docker-build.sh
+```
+#### Run
+```
+docker run -it --rm --name lwan_gw_test --device /dev/ttyACM0 lorawan_gateway_test
+```
+
+### Manual
+
+#### Setup
 1. 
     ```
     cd gateway-decoder && npm install && cd ../
@@ -101,7 +115,7 @@ Useful for site and sensor testing
     sudo bash install-gateway-<pico/rak2247>.sh -s
     ```
 
-### Run
+#### Run
 ```
 bash gateway-decode.sh
 ```
