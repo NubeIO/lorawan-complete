@@ -80,6 +80,10 @@ if ! hash docker > /dev/null; then
     usermod -aG docker $USER
     usermod -aG docker $(who am i | awk '{print $1}')
     set -e
+    echo ""
+    echo "-- Reboot required after docker installation! --"
+    echo "Then re-run this script to continue installation"
+    exit 0
 fi
 # Install requirements
 apt install -y docker-compose git python3-pip jq

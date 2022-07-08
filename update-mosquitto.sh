@@ -51,20 +51,24 @@ function addDocker() {
     echo "Creating config backup to $BACKUP_FILE"
     cp $CONFIG_FILE $BACKUP_FILE
 
-    echo "Adding Docker listener to Mosquitto config"
-    LISTENER="listener 1883 $DOCKER_IP"
-    if [[ $(grep "$LISTENER" $CONFIG_FILE) ]]; then
-        sed -i 's/^#.*'"$LISTENER"'/'"$LISTENER"'/' $CONFIG_FILE
-    else
-        sed -i '/^listener.*/a '"$LISTENER"'' $CONFIG_FILE
-    fi
+    if [[ ! $(grep -E "^listener 1883$" $CONFIG_FILE) ]]; then
+        echo "Adding Docker listener to Mosquitto config"
+        LISTENER="listener 1883 $DOCKER_IP"
+        if [[ $(grep "$LISTENER" $CONFIG_FILE) ]]; then
+            sed -i 's/^#.*'"$LISTENER"'/'"$LISTENER"'/' $CONFIG_FILE
+        else
+            sed -i '/^listener.*/a '"$LISTENER"'' $CONFIG_FILE
+        fi
 
-    echo "Modifying service file to wait for Docker"
-    if [ -z "$(grep -E "After=.*docker.service" $SERVICE_FILE)" ]; then
-        sed -i 's/After=.*/& docker.service/' $SERVICE_FILE
-        systemctl daemon-reload
+        echo "Modifying service file to wait for Docker"
+        if [ -z "$(grep -E "After=.*docker.service" $SERVICE_FILE)" ]; then
+            sed -i 's/After=.*/& docker.service/' $SERVICE_FILE
+            systemctl daemon-reload
+        else
+            echo "No service file modification needed."
+        fi
     else
-        echo "No modification needed."
+        echo "Mosquitto config already contains a global listener. No edits were made to config or service file."
     fi
 
     if command -v ufw &> /dev/null; then
