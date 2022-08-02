@@ -8,7 +8,7 @@ BUILD_ARCH="arm32v7"
 LORA_REGION="au915"
 LORA_REGION_BAND=0
 
-SERVER_PASSWORD="NA"
+SERVER_PASSWORD=
 
 MQTT_USER=""
 MQTT_PASS=""
@@ -57,6 +57,11 @@ done
 
 if [ $UID != 0 ]; then
     echo "ERROR: Operation not permitted. Forgot sudo?"
+    exit 1
+fi
+
+if [ -z "$SERVER_PASSWORD" ]; then
+    echo "ERROR: Please provide server password (-p)"
     exit 1
 fi
 
@@ -129,7 +134,7 @@ fi
 SERVICE_FILE_SERVER=lorawan-server
 if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_SERVER.service" ]; then
     echo "Enabling system startup service"
-    
+
     sed -i 's,WorkingDirectory=.*,WorkingDirectory='"$(pwd)"'/,g' systemd/$SERVICE_FILE_SERVER.service
     if [ $ENABLE_MOSQUITTO = 'true' ]; then
         sed -i 's,ExecStart=.*,ExecStart='"$(which docker-compose)"' -f docker-compose.yml -f docker-compose-mosquitto.yml --log-level '"$LOG_LEVEL"' up,g' systemd/$SERVICE_FILE_SERVER.service
@@ -178,14 +183,8 @@ elif [ -d "gateway/pico" ]; then
     echo "Gateway EUI: $GW_EUI"
 fi
 
-if [ -d "gateway" ]; then
-    if [ $SERVER_PASSWORD = "NA" ]; then
-        python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND
-    else
-        python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND -p $SERVER_PASSWORD
-    fi
-elif [ $SERVER_PASSWORD = "NA" ]; then
-    python chirpstack-app-init.py
+if [ ! -z "$GW_EUI" ]; then
+    python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND -p $SERVER_PASSWORD
 else
     python chirpstack-app-init.py -p $SERVER_PASSWORD
 fi

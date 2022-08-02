@@ -27,6 +27,9 @@ if gw_eui is not None or gw_region is not None or gw_band is not None:
         print("Error: Missing gateway arguments!")
         exit(1)
 
+if password is None:
+    print("Error: Please provide a password")
+
 # login
 resp = requests.post('http://127.0.0.1:8080/api/internal/login',
                      json={'email': 'admin', 'password': 'admin'},
@@ -108,11 +111,11 @@ resp = requests.post('http://127.0.0.1:8080/api/service-profiles',
                      json={"serviceProfile": {
                          "addGWMetaData": True,
                          "name": "local-service-profile-default",
-                         "networkServerID": ""+nw_id,
+                         "networkServerID": "" + nw_id,
                          "nwkGeoLoc": False,
                          "reportDevStatusBattery": False,
                          "reportDevStatusMargin": False,
-                         "organizationID": ""+org_id,
+                         "organizationID": "" + org_id,
                          "drMax": 5,
                          "drMin": 0,
                      }}
@@ -132,12 +135,12 @@ if gateway_profiles and gw_eui != None and gwp_id != None:
                          json={"gateway": {
                              "description": "default gateway",
                              "discoveryEnabled": False,
-                             "gatewayProfileID": ""+gwp_id,
+                             "gatewayProfileID": "" + gwp_id,
                              "name": "default-gateway",
                              "id": gw_eui,
-                             "networkServerID": ""+nw_id,
-                             "organizationID": ""+org_id,
-                             "serviceProfileID": ""+sp_id,
+                             "networkServerID": "" + nw_id,
+                             "organizationID": "" + org_id,
+                             "serviceProfileID": "" + sp_id,
                              "location": {
                                  "accuracy": 0,
                                  "altitude": 0,
@@ -159,8 +162,8 @@ resp = requests.post('http://127.0.0.1:8080/api/applications',
                      json={"application": {
                          "name": "default-app",
                          "description": "default-app",
-                         "organizationID": ""+org_id,
-                         "serviceProfileID": ""+sp_id
+                         "organizationID": "" + org_id,
+                         "serviceProfileID": "" + sp_id
                      }}
                      )
 if resp.status_code < 200 or resp.status_code >= 300:
@@ -200,18 +203,34 @@ try:
 except IOError:
     print("No init data provided with init_data.json")
 
+# API Token
+resp = requests.post('http://127.0.0.1:8080/api/internal/api-keys',
+                     headers={
+                         'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                     json={
+                         "apiKey": {
+                             "isAdmin": True,
+                             "name": "default-internal"
+                         }
+                     }
+                     )
+if resp.status_code < 200 or resp.status_code >= 300:
+    print("POST API Token Failure - StatusCode: ", resp.status_code)
+    exit(1)
+api_token = str(resp.json()['jwtToken'])
+print('API Token: ', api_token)
+
 # user password
-if password is not None:
-    resp = requests.put('http://127.0.0.1:8080/api/users/1/password',
-                        headers={
-                            'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
-                        json={
-                            "password": password
-                        }
-                        )
-    if resp.status_code < 200 or resp.status_code >= 300:
-        print("PUT Password Failure - StatusCode: ", resp.status_code)
-        exit(1)
-    print('User password updated')
+resp = requests.put('http://127.0.0.1:8080/api/users/1/password',
+                    headers={
+                        'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                    json={
+                        "password": password
+                    }
+                    )
+if resp.status_code < 200 or resp.status_code >= 300:
+    print("PUT Password Failure - StatusCode: ", resp.status_code)
+    exit(1)
+print('User password updated')
 
 print('Data initialisation done')
