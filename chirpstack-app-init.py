@@ -203,23 +203,6 @@ try:
 except IOError:
     print("No init data provided with init_data.json")
 
-# API Token
-resp = requests.post('http://127.0.0.1:8080/api/internal/api-keys',
-                     headers={
-                         'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
-                     json={
-                         "apiKey": {
-                             "isAdmin": True,
-                             "name": "default-internal"
-                         }
-                     }
-                     )
-if resp.status_code < 200 or resp.status_code >= 300:
-    print("POST API Token Failure - StatusCode: ", resp.status_code)
-    exit(1)
-api_token = str(resp.json()['jwtToken'])
-print('API Token: ', api_token)
-
 # user password
 resp = requests.put('http://127.0.0.1:8080/api/users/1/password',
                     headers={
