@@ -1,0 +1,11 @@
+{
+    "deviceProfile": {
+        "name": "MS-WS301-OTAA",
+        "macVersion": "1.0.3",
+        "regParamsRevision": "B",
+        "supportsJoin": true,
+        "payloadCodec": "CUSTOM_JS",
+        "payloadEncoderScript": "",
+        "payloadDecoderScript": "/**\n * Payload Decoder for The Things Network\n *\n * Copyright 2021 Milesight IoT\n *\n * @product WS301\n */\nfunction Decode(fPort, bytes) {\n    var decoded = {};\n\n    for (var i = 0; i < bytes.length; ) {\n        var channel_id = bytes[i++];\n        var channel_type = bytes[i++];\n        // BATTERY\n        if (channel_id === 0x01 && channel_type === 0x75) {\n            decoded.battery = bytes[i];\n            i += 1;\n        }\n        // DOOR / WINDOW STATE (0: close 1: open)\n        else if (channel_id === 0x03 && channel_type === 0x00) {\n            decoded.state = bytes[i] === 0 ? \"close\" : \"open\";\n            i += 1;\n        }\n        // INSTALL STATE (0: install 1: uninstall)\n        else if (channel_id === 0x04 && channel_type === 0x00) {\n            decoded.install = bytes[i] === 0 ? \"yes\" : \"no\";\n            i += 1;\n        } else {\n            break;\n        }\n    }\n\n    return decoded;\n}"
+    }
+}

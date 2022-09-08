@@ -2,7 +2,7 @@
     "deviceProfile": {
         "name": "MS-EM500-CO2-OTAA",
         "macVersion": "1.0.3",
-        "regParamsRevision": "RP002-1.0.2",
+        "regParamsRevision": "B",
         "supportsJoin": true,
         "payloadCodec": "CUSTOM_JS",
         "payloadEncoderScript": "",

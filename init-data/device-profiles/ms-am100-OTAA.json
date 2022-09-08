@@ -2,7 +2,7 @@
     "deviceProfile": {
         "name": "MS-AM100-OTAA",
         "macVersion": "1.0.3",
-        "regParamsRevision": "",
+        "regParamsRevision": "B",
         "supportsJoin": true,
         "payloadCodec": "CUSTOM_JS",
         "payloadEncoderScript": "",

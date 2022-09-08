@@ -2,7 +2,7 @@
     "deviceProfile": {
         "name": "MS-WS101-OTAA",
         "macVersion": "1.0.3",
-        "regParamsRevision": "A",
+        "regParamsRevision": "B",
         "supportsJoin": true,
         "payloadCodec": "CUSTOM_JS",
         "payloadEncoderScript": "",
