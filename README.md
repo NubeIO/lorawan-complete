@@ -14,8 +14,9 @@ Dockerised server [Chirpstack-Docker](https://github.com/brocaar/chirpstack-dock
 Server and Gateway can be installed separately
 
 #### Gateways:
-- Rak gateway [rak_common_for_gateway](https://github.com/RAKWireless/rak_common_for_gateway).  
-- PicoCell gateway [Lora-net](https://github.com/Lora-net/picoGW_packet_forwarder)
+- SX1302 gateway [Lora-net sx1302](https://github.com/Lora-net/sx1302_hal)  
+- PicoCell gateway [Lora-net PicoCell](https://github.com/Lora-net/picoGW_packet_forwarder)  
+- Rak gateway [rak_common_for_gateway](https://github.com/RAKWireless/rak_common_for_gateway)  
   
 ## Installation
 
@@ -34,6 +35,8 @@ wget https://github.com/NubeIO/lorawan-complete/archive/refs/tags/v$LORAWAN_VERS
 ```
 ### Gateway
 ```
+sudo bash install-gateway-sx1302.sh -h
+OR
 sudo bash install-gateway-pico.sh -h
 OR
 sudo bash install-gateway-rak2247.sh -h
@@ -112,7 +115,7 @@ docker run -it --rm --name lwan_gw_test --device /dev/ttyACM0 lorawan_gateway_te
     ```
 2. [_Optional_] Install gateway:
     ```
-    sudo bash install-gateway-<pico/rak2247>.sh -s
+    sudo bash install-gateway-<sx1302/pico/rak2247>.sh -s
     ```
 
 #### Run

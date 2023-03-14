@@ -3,7 +3,6 @@ set -e
 
 
 # -- User Config --
-LORA_MODULE="rak2247_usb"
 LORA_REGION="au915"
 LORA_REGION_BAND=0
 
@@ -59,11 +58,11 @@ fi
 
 
 #Packet Forwarder
-if [ ! -f "$PKT_FWD_DIR/pico/pkt_fwd/lora_pkt_fwd" ]; then
+if [ ! -f "$PKT_FWD_DIR/pkt_fwd/lora_pkt_fwd" ]; then
 
     echo "Installing Gateway..."
 
-    sed -i 's,PKT_FWD_DIR=.*,PKT_FWD_DIR="'"$PKT_FWD_DIR/pico/pkt_fwd"'",g' start.sh
+    sed -i 's,PKT_FWD_DIR=.*,PKT_FWD_DIR="'"$PKT_FWD_DIR/pkt_fwd"'",g' start.sh
 
     if [ ! -d "$PKT_FWD_DIR" ]; then
         mkdir $PKT_FWD_DIR -p
@@ -98,8 +97,8 @@ if [ ! -f "$PKT_FWD_DIR/pico/pkt_fwd/lora_pkt_fwd" ]; then
         unzip picoGW_packet_forwarder.zip
         rm picoGW_packet_forwarder.zip
         pushd picoGW_packet_forwarder-$VERSION_PKT_FWD/lora_pkt_fwd
+            # this variable links the hal binary for the pkt_fwd to use
             LGW_PATH=../../hal make
-
             mv lora_pkt_fwd ../../pkt_fwd/
             mv update_gwid.sh ../../pkt_fwd/
             cp ../../../../configuration/gateway/pico/global_conf.$LORA_REGION.$LORA_REGION_BAND.json ../../pkt_fwd/global_conf.json

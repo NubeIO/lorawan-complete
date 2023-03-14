@@ -181,6 +181,9 @@ if [ -d "gateway/rak" ]; then
 elif [ -d "gateway/pico" ]; then
     GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/pico/pkt_fwd/global_conf.json)
     echo "Gateway EUI: $GW_EUI"
+elif [ -d "gateway/sx1302" ]; then
+    GW_EUI=$(jq -r .gateway_conf.gateway_ID gateway/sx1302/global_conf.json)
+    echo "Gateway EUI: $GW_EUI"
 fi
 
 if [ ! -z "$GW_EUI" ]; then
