@@ -1,6 +1,6 @@
 {
   "gatewayProfile": {
-    "name": "as923",
+    "name": "AS923",
     "networkServerID": "",
     "channels": [0, 1],
     "extraChannels": [

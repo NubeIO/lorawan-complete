@@ -37,6 +37,10 @@ if [ $UID != 0 ]; then
     exit 1
 fi
 
+if ! [ -f configuration/gateway/$LORA_MODULE/global_conf.$LORA_REGION.$LORA_REGION_BAND.json ]; then
+    echo "ERROR: No Packet forwarder config file found for that frequency plan"
+    exit 1
+fi
 
 if [ -d "$PKT_FWD_DIR/rak" ]; then
     CFG_DIR="$PKT_FWD_DIR/rak/packet_forwarder/lora_pkt_fwd"

@@ -43,15 +43,16 @@ if [ $UID != 0 ]; then
     exit 1
 fi
 
+if ! [ -f configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml ]; then
+    echo "ERROR: No Chirpstack network server config file found for that frequency plan"
+    exit 1
+fi
+
 echo "Stopping server"
 systemctl stop lorawan-server.service
 
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
-if [ $LORA_REGION = "au915" ] || [ $LORA_REGION = "us915" ]; then
-    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
-else
-    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
-fi
+cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,username=\"\",username=\"'"$MQTT_USER"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,password=\"\",password=\"'"$MQTT_PASS"'\",g' configuration/chirpstack-network-server/chirpstack-network-server.toml

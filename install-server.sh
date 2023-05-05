@@ -107,11 +107,7 @@ docker load -i docker-build/redis-local.tar
 
 #Chirpstack Config
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
-if [ $LORA_REGION = "au915" ] || [ $LORA_REGION = "us915" ]; then
-    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
-else
-    cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
-fi
+cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-application-server/chirpstack-application-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml

@@ -1,7 +1,7 @@
 {
   "gatewayProfile": {
     "channels": [8, 9, 10, 11, 12, 13, 14, 15, 65],
-    "name": "AU915_1",
+    "name": "US915_1",
     "networkServerID": "",
     "statsInterval": "30s"
   }
