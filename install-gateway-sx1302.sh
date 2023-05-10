@@ -114,6 +114,10 @@ if [ $STARTUP_SERVICE = 'true' ] && [ -f "systemd/$SERVICE_FILE_GATEWAY.service"
     systemctl daemon-reload
     systemctl enable $SERVICE_FILE_GATEWAY.service
     service $SERVICE_FILE_GATEWAY start
+
+    crontab -l 2>/dev/null \
+     | echo "0 */4 * * * /usr/bin/systemctl restart $SERVICE_FILE_GATEWAY.service" \
+     | crontab -
 else
     echo "No system startup service..."
 fi

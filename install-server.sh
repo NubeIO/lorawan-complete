@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-
 # -- User Config --
 BUILD_ARCH="arm32v7"
 
@@ -65,6 +64,11 @@ if [ -z "$SERVER_PASSWORD" ]; then
     exit 1
 fi
 
+if ! [ -f configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml ]; then
+    echo "ERROR: No Chirpstack network server config file found for that frequency plan"
+    exit 1
+fi
+
 chmod +x change-freq-gateway.sh change-freq-server.sh uninstall-gateway.sh uninstall-server.sh start.sh stop.sh
 
 #Dependencies
@@ -84,15 +88,21 @@ if ! hash docker > /dev/null; then
     set +e
     usermod -aG docker $USER
     usermod -aG docker $(who am i | awk '{print $1}')
+    apt install -y docker-compose
     set -e
     echo ""
     echo "-- Reboot required after docker installation! --"
     echo "Then re-run this script to continue installation"
     exit 0
 fi
+
 # Install requirements
-apt install -y docker-compose git python3-pip jq
-pip install requests
+if ! hash git > /dev/null || ! hash pip3 > /dev/null || ! hash jq > /dev/null; then
+    apt install -y git python3-pip jq
+    pip install requests
+else
+    echo -n "\n\n\nSKIPPING REQS\n\n"
+fi
 echo "Done"
 
 #Chirpstack
@@ -107,7 +117,7 @@ docker load -i docker-build/redis-local.tar
 
 #Chirpstack Config
 echo "Setting Chirpstack Network Server config to $LORA_REGION"
-cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
+cp configuration/chirpstack-network-server/examples/chirpstack-network-server.$LORA_REGION.$LORA_REGION_BAND.toml configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-application-server/chirpstack-application-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-network-server/chirpstack-network-server.toml
 sed -i 's,tcp://mosquitto:1883,tcp://host.docker.internal:1883,g' configuration/chirpstack-gateway-bridge/chirpstack-gateway-bridge.toml
