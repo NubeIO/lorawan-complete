@@ -216,4 +216,25 @@ if resp.status_code < 200 or resp.status_code >= 300:
     exit(1)
 print('User password updated')
 
+# Internal API Token
+token_filename = '/data/auth/chirpstack.txt'
+
+resp = requests.post('http://127.0.0.1:8080/api/internal/api-keys',
+                     headers={
+                         'Grpc-Metadata-Authorization': 'Bearer ' + jwt},
+                     json={
+                         "apiKey": {
+                             "isAdmin": True,
+                             "name": "rubix-internal"
+                         }
+                     }
+                     )
+if resp.status_code < 200 or resp.status_code >= 300:
+    print("PUT Password Failure - StatusCode: ", resp.status_code)
+    exit(1)
+token_json = resp.json()
+with open(token_filename, 'w') as file:
+    file.write(token_json['jwtToken'])
+print('Internal API Token saved to ', token_filename)
+
 print('Data initialisation done')
