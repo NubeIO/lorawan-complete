@@ -28,7 +28,7 @@ if [ $UID != 0 ]; then
 fi
 
 echo "Wiping Chirpstack application data..."
-python chirpstack-app-wipe.py
+python chirpstack-scripts/chirpstack-app-wipe.py
 echo "Done"
 
 #System service

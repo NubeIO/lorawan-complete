@@ -193,9 +193,9 @@ elif [ -d "gateway/sx1302" ]; then
 fi
 
 if [ ! -z "$GW_EUI" ]; then
-    python chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND -p $SERVER_PASSWORD
+    python chirpstack-scripts/chirpstack-app-init.py -g $GW_EUI -r $LORA_REGION -b $LORA_REGION_BAND -p $SERVER_PASSWORD
 else
-    python chirpstack-app-init.py -p $SERVER_PASSWORD
+    python chirpstack-scripts/chirpstack-app-init.py -p $SERVER_PASSWORD
 fi
 echo
 echo "Finished"
